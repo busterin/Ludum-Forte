@@ -453,3 +453,34 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   object-fit: contain;
   overflow: hidden;
 }
+/* === Forzar esquina dura sin perder tamaño === */
+/* Mantiene tus alturas grandes actuales con --char-h-left / --char-h-right */
+#dialogScene img#charArcher{
+  position: absolute;
+  left: 0 !important;     /* esquina izquierda */
+  right: auto !important; /* reset del lado opuesto */
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
+  height: var(--char-h-left);
+  width: auto;
+  max-width: none;         /* no limitar por ancho */
+  object-fit: contain;
+  transform: translateX(-6%); /* empuja un pelín hacia fuera para que no invada el centro */
+}
+
+#dialogScene img#charKnight{
+  position: absolute;
+  right: 0 !important;    /* esquina derecha */
+  left: auto !important;  /* reset del lado opuesto */
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
+  height: var(--char-h-right);
+  width: auto;
+  max-width: none;         /* no limitar por ancho */
+  object-fit: contain;
+  transform: translateX(6%);  /* empuja un pelín hacia fuera para que no invada el centro */
+}
+
+/* Resalta al hablante como ya tenías */
+#dialogScene .dialog-char.speaking{
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
+}
