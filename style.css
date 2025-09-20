@@ -371,3 +371,15 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   --char-h-right: 68vh;   /* antes 64vh */
   --char-waist-right: 31vh;/* antes 29vh */
 }
+:root{
+  /* Caja (como ya la tenías) */
+  --dlg-bottom: 2vh;
+  --dlg-height: 24vh;
+
+  /* Tamaños más grandes */
+  --char-h-left: 70vh;     /* antes 62vh */
+  --char-waist-left: 32vh; /* antes 28vh */
+
+  --char-h-right: 76vh;    /* antes 68vh */
+  --char-waist-right: 35vh;/* antes 31vh */
+}
