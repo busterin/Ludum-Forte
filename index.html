@@ -5,7 +5,7 @@
   <title>TACTIC HEROES</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=skirmish-rescue-fix">
+  <link rel="stylesheet" href="style.css?v=vn-box-static">
 </head>
 <body>
   <!-- Bloqueo por orientación horizontal -->
@@ -24,12 +24,12 @@
   <!-- Escena de diálogo (2 personajes + typewriter) -->
   <div id="dialogScene" style="display:none">
     <div class="dialog-bg"></div>
-    <!-- Personajes -->
-    <img class="dialog-char left" id="charKnight" src="assets/GuerreraDialogo.PNG" alt="Guerrera">
-<img class="dialog-char right" id="charArcher" src="assets/ArqueroDialogo.PNG" alt="Arquero">
+    <!-- Personajes (estáticos) -->
+    <img class="dialog-char left"  id="charKnight" src="assets/GuerreraDialogo.PNG" alt="Guerrera">
+    <img class="dialog-char right" id="charArcher" src="assets/ArqueroDialogo.PNG"  alt="Arquero">
     <!-- Caja de diálogo -->
     <div class="dialog-box">
-      <div class="dialog-name" id="dialogName">Caballero</div>
+      <div class="dialog-name" id="dialogName">Guerrera</div>
       <div class="dialog-text" id="dialogText"></div>
       <div class="dialog-cta">
         <button id="btnDialogNext" class="primary small">Continuar</button>
@@ -45,7 +45,7 @@
     </div>
   </div>
 
-  <!-- Overlay DERROTA (para el modo RESCATE) -->
+  <!-- Overlay DERROTA (para RESCATE) -->
   <div id="overlayLose" class="overlay" style="display:none">
     <div class="overlay-box">
       <h1>DERROTA</h1>
@@ -65,6 +65,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=skirmish-rescue-fix"></script>
+  <script src="script.js?v=vn-box-static"></script>
 </body>
 </html>
