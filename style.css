@@ -383,3 +383,31 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   --char-h-right: 76vh;    /* antes 68vh */
   --char-waist-right: 35vh;/* antes 31vh */
 }
+/* Forzar que el ancho no limite el escalado vertical */
+#dialogScene #charArcher,
+#dialogScene #charKnight{
+  width: auto;
+  max-width: none;     /* ← quita el freno */
+}
+
+/* Tamaño visible (ajusta estos números a tu gusto) */
+:root{
+  --char-h-left: 78vh;     /* Arquero (izq) */
+  --char-waist-left: 35vh;
+
+  --char-h-right: 84vh;    /* Guerrera (der) un poco más grande */
+  --char-waist-right: 38vh;
+}
+
+/* Posicionamiento (con cintura alineada a la caja) */
+#dialogScene #charArcher{
+  left: 2vw;
+  height: var(--char-h-left);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
+}
+
+#dialogScene #charKnight{
+  right: 2vw;
+  height: var(--char-h-right);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
+}
