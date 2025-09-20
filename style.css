@@ -431,3 +431,25 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   width: auto;
   object-fit: contain;
 }
+/* Personajes grandes y pegados a los extremos, aunque se corte un poco */
+#dialogScene #charArcher {
+  position: absolute;
+  left: 0;  /* extremo izquierdo */
+  height: var(--char-h-left);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
+  width: auto;
+  max-width: none;           /* 👈 sin límite de ancho */
+  object-fit: contain;
+  overflow: hidden;
+}
+
+#dialogScene #charKnight {
+  position: absolute;
+  right: 0; /* extremo derecho */
+  height: var(--char-h-right);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
+  width: auto;
+  max-width: none;           /* 👈 sin límite de ancho */
+  object-fit: contain;
+  overflow: hidden;
+}
