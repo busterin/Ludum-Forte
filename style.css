@@ -14,7 +14,7 @@
   --hudOffset: 2.2; /* súbelo a 2.4 si lo quieres aún más arriba */
 
   /* Fondo compartido */
-  --bg-url: url("assets/background.png");
+  --bg-url: url("assets/background.PNG");
 }
 
 * { box-sizing: border-box; }
@@ -47,8 +47,7 @@ body {
 }
 #portada .portada-img {
   width: 100%; height: 100%;
-  object-fit: cover; /* rellena pantalla, aunque recorte */
-  object-position: center;
+  object-fit: cover; object-position: center;
   pointer-events: none;
 }
 #portada .btn-jugar {
@@ -69,21 +68,17 @@ body {
   background-size: cover; background-position: center;
   filter: brightness(.95) saturate(1.05);
 }
-/* Personajes: colocados a izquierda y derecha, sin superponerse */
+/* Personajes */
 .dialog-char{
   position: absolute; bottom: 18%;
-  height: 58%; max-width: 44vw; /* evita solaparse en pantallas estrechas */
+  height: 58%; max-width: 44vw;
   object-fit: contain; image-rendering: pixelated;
-  opacity: 0.6; /* el hablante sube a 1 */
-  transition: opacity .2s ease;
+  opacity: 0.6; transition: opacity .2s ease;
   pointer-events: none;
 }
-/* Caballero: entra desde la izquierda */
 .dialog-char.left { left: 2%; transform: translateX(-120%); animation: char-in-left .55s ease-out forwards; }
-/* Arquera: a la derecha, volteada para mirar al caballero */
 .dialog-char.right { right: 2%; transform: translateX(120%) scaleX(-1); transform-origin: center; animation: char-in-right .65s ease-out forwards; animation-delay: .1s; }
 
-/* Animaciones con la orientación correcta */
 @keyframes char-in-left {
   0% { transform: translateX(-120%); opacity: 0; }
   70%{ transform: translateX(4%); opacity: 1; }
@@ -95,10 +90,8 @@ body {
   100%{ transform: translateX(0) scaleX(-1); opacity: 1; }
 }
 
-/* Personaje activo: ilumina + pequeño pop cíclico */
 .dialog-char.speaking{ opacity: 1 !important; filter: drop-shadow(0 0 10px rgba(255,255,255,.12)); }
 
-/* Pop mientras habla */
 @keyframes speak-pop {
   0% { transform: translateY(0) scale(1); }
   30%{ transform: translateY(-3px) scale(1.03); }
@@ -119,10 +112,7 @@ body {
 .dialog-cta{ display: flex; justify-content: flex-end; }
 .dialog-box .small{ padding: 7px 12px; font-size: 13px; border-radius: 10px; }
 
-/* Cursor de tecleo */
-.type-cursor::after{
-  content: "▌"; display: inline-block; margin-left: 2px; animation: cursorBlink .9s steps(1) infinite;
-}
+.type-cursor::after{ content: "▌"; display: inline-block; margin-left: 2px; animation: cursorBlink .9s steps(1) infinite; }
 @keyframes cursorBlink { 50% { opacity: 0; } }
 
 /* ---------- Overlays ---------- */
@@ -169,7 +159,7 @@ body {
   position: relative;
 }
 
-/* HUD dentro del mapa, más arriba en la zona no jugable */
+/* HUD en la zona no jugable */
 #hud{
   position: absolute; left: 0; right: 0;
   top: calc(var(--cell) * (var(--rows) - var(--hudRows) - var(--hudOffset)));
