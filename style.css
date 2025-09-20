@@ -313,3 +313,49 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   opacity: 1 !important;
   filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
+/* ===== Diálogo: esquinado + tamaños por personaje ===== */
+:root{
+  /* Caja de diálogo (debe coincidir con lo que ya tienes) */
+  --dlg-bottom: 2vh;
+  --dlg-height: 24vh;
+
+  /* Tamaños y “altura de cintura” por cada retrato */
+  --char-h-left: 58vh;   /* Arquero (izquierda) */
+  --char-waist-left: 26vh;
+
+  --char-h-right: 64vh;  /* Guerrera (derecha) — un poco más grande */
+  --char-waist-right: 29vh;
+}
+
+/* Reset común (mantiene el highlight por .speaking) */
+#dialogScene .dialog-char{
+  position: absolute;
+  width: auto; max-width: none;   /* sin tope que recentre */
+  object-fit: contain;
+  image-rendering: pixelated;
+  opacity: .35;
+  transition: opacity .18s ease, filter .18s ease;
+  pointer-events: none;
+}
+
+/* 🔹 Arquero a la izquierda, bien esquinado */
+#dialogScene #charArcher{
+  left: 2vw;                         /* pegado al borde izq */
+  height: var(--char-h-left);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
+  max-width: 44vw;                   /* evita invadir el centro */
+}
+
+/* 🔹 Guerrera a la derecha, más grande para equilibrar */
+#dialogScene #charKnight{
+  right: 2vw;                        /* pegado al borde dcho */
+  height: var(--char-h-right);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
+  max-width: 48vw;                   /* un pelín más ancha que el arquero */
+}
+
+/* Hablante destacado (igual que antes) */
+#dialogScene .dialog-char.speaking{
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
+}
