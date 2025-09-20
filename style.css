@@ -73,26 +73,27 @@ body {
   filter: brightness(.95) saturate(1.05);
 }
 
-/* Personajes del diálogo: estáticos, grandes y abajo */
-.dialog-char{
+/* Personajes del diálogo: enormes y muy abajo */
+.dialog-char {
   position: absolute;
-  bottom: 0;                 /* tapa con la caja */
-  height: 88%;               /* grandes */
-  max-width: 50vw;
+  bottom: -4%;          /* 👈 incluso más abajo, sobresaliendo */
+  height: 110%;         /* 👈 muchísimo más grandes */
+  max-width: 55vw;      /* permite que ocupen más ancho */
   object-fit: contain;
   image-rendering: pixelated;
-  opacity: .35;              /* por defecto, traslúcidos */
+  opacity: .35;         /* por defecto translúcidos */
   transition: opacity .18s ease, filter .18s ease;
   pointer-events: none;
 }
-/* Colocación fija (sin animaciones ni flips) */
-.dialog-char.left  { left:  2%; transform: none; }
+
+/* Colocación fija */
+.dialog-char.left  { left: 2%;  transform: none; }
 .dialog-char.right { right: 2%; transform: none; }
 
-/* Hablante destacado */
-.dialog-char.speaking{
+/* El que habla se resalta */
+.dialog-char.speaking {
   opacity: 1 !important;
-  filter: drop-shadow(0 0 10px rgba(255,255,255,.12));
+  filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
 
 /* Caja de diálogo (visual novel) */
