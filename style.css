@@ -31,7 +31,6 @@ body {
   flex-direction: column;
   padding-bottom: env(safe-area-inset-bottom);
 
-  /* 👇 Fondo de pantalla completa */
   background-image: var(--bg-url);
   background-size: cover;
   background-position: center;
@@ -68,70 +67,60 @@ body {
   background-size: cover; background-position: center;
   filter: brightness(.95) saturate(1.05);
 }
-/* Personajes */
+
+/* Personajes del diálogo: estáticos, grandes y abajo */
 .dialog-char{
   position: absolute;
-  bottom: 0%;                 /* 👇 pegados abajo */
-  height: 88%;                /* 👇 mucho más grandes */
-  max-width: 50vw;            /* ancho mayor */
+  bottom: 0;                 /* tapa con la caja */
+  height: 88%;               /* grandes */
+  max-width: 50vw;
   object-fit: contain;
   image-rendering: pixelated;
-  opacity: 0.6;
-  transition: opacity .2s ease;
+  opacity: .35;              /* por defecto, traslúcidos */
+  transition: opacity .18s ease, filter .18s ease;
   pointer-events: none;
 }
+/* Colocación fija (sin animaciones ni flips) */
+.dialog-char.left  { left:  2%; transform: none; }
+.dialog-char.right { right: 2%; transform: none; }
 
-/* Guerrera (lado izq) volteada hacia el centro */
-.dialog-char.left {
-  left: 2%;
-  transform: translateX(-120%) scaleX(-1);
-  transform-origin: center;
-  animation: char-in-left .55s ease-out forwards;
+/* Hablante destacado */
+.dialog-char.speaking{
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,.12));
 }
 
-/* Arquero (lado der) volteado hacia el centro */
-.dialog-char.right {
-  right: 2%;
-  transform: translateX(120%) scaleX(-1);
-  transform-origin: center;
-  animation: char-in-right .65s ease-out forwards;
-  animation-delay: .1s;
-}
-
-/* Animaciones corregidas para que mantengan la inversión */
-@keyframes char-in-left {
-  0%   { transform: translateX(-120%) scaleX(-1); opacity: 0; }
-  70%  { transform: translateX(4%) scaleX(-1);   opacity: 1; }
-  100% { transform: translateX(0) scaleX(-1);   opacity: 1; }
-}
-@keyframes char-in-right {
-  0%   { transform: translateX(120%) scaleX(-1); opacity: 0; }
-  70%  { transform: translateX(-4%) scaleX(-1);  opacity: 1; }
-  100% { transform: translateX(0) scaleX(-1);   opacity: 1; }
-}
-
-.dialog-char.speaking{ opacity: 1 !important; filter: drop-shadow(0 0 10px rgba(255,255,255,.12)); }
-
-@keyframes speak-pop {
-  0% { transform: translateY(0) scale(1); }
-  30%{ transform: translateY(-3px) scale(1.03); }
-  60%{ transform: translateY(0) scale(1); }
-  100%{ transform: translateY(0) scale(1); }
-}
-.dialog-char.pop { animation: speak-pop 1.2s ease-in-out .3s infinite; }
-
-/* Caja de diálogo */
+/* Caja de diálogo (visual novel) */
 .dialog-box{
-  position: absolute; left: 4%; right: 4%; bottom: 4%;
-  background: rgba(7,12,16,.88); border: 1px solid rgba(255,255,255,.14);
-  border-radius: 12px; padding: 10px 12px 12px 12px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+  position: absolute; left: 2.5%; right: 2.5%;
+  bottom: 2%; /* muy baja para tapar más las ilustraciones */
+  background: rgba(5,10,14,.82);
+  border: 1px solid rgba(255,255,255,.20);
+  border-radius: 14px;
+  padding: 14px 16px 16px 16px; /* más alta */
+  box-shadow: 0 16px 32px rgba(0,0,0,.5);
+  backdrop-filter: blur(6px); /* más blur */
 }
-.dialog-name{ font-weight: 800; margin-bottom: 6px; color: #fff; letter-spacing: .2px; }
-.dialog-text{ font-size: 14px; line-height: 1.35; color: #e6ecf4; min-height: 3.2em; margin-bottom: 10px; white-space: pre-wrap; }
-.dialog-cta{ display: flex; justify-content: flex-end; }
-.dialog-box .small{ padding: 7px 12px; font-size: 13px; border-radius: 10px; }
 
+/* Sutil degradado superior para integrar con los personajes */
+.dialog-box::before{
+  content:"";
+  position:absolute; left:-1px; right:-1px; top:-18px; height:18px;
+  background: linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,0));
+  border-top-left-radius: 14px; border-top-right-radius: 14px;
+  pointer-events:none;
+}
+
+.dialog-name{
+  font-weight: 900; margin: 2px 0 6px 0; color: #fff; letter-spacing: .2px; font-size: 15px;
+}
+.dialog-text{
+  font-size: 15px; line-height: 1.45; color: #e9eef7; min-height: 3.6em; margin-bottom: 12px; white-space: pre-wrap;
+}
+.dialog-cta{ display: flex; justify-content: flex-end; }
+.dialog-box .small{ padding: 8px 13px; font-size: 13px; border-radius: 10px; }
+
+/* Cursor de tecleo */
 .type-cursor::after{ content: "▌"; display: inline-block; margin-left: 2px; animation: cursorBlink .9s steps(1) infinite; }
 @keyframes cursorBlink { 50% { opacity: 0; } }
 
@@ -179,7 +168,7 @@ body {
   position: relative;
 }
 
-/* HUD en la zona no jugable */
+/* HUD dentro del mapa, más arriba en la zona no jugable */
 #hud{
   position: absolute; left: 0; right: 0;
   top: calc(var(--cell) * (var(--rows) - var(--hudRows) - var(--hudOffset)));
