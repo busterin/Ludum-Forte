@@ -1,4 +1,4 @@
-/* build: skirmish+rescue+png-fix */
+/* build: skirmish+rescue + PNG + static-dialog */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
   const ROWS = 16, COLS = 9;
@@ -9,9 +9,9 @@
   const ENEMY_MAX_MP  = 3;
   const ENEMY_BASE_DAMAGE = 50;
 
-  // Estado común
+  // Estado
   let turno = "jugador";
-  let fase = 1; // sólo para skirmish
+  let fase = 1; // skirmish
   let enemies = [];
   let players = [];
   let seleccionado = null;
@@ -20,7 +20,7 @@
 
   // Modos
   let gameMode = "skirmish";   // "skirmish" (nivel 1) -> "rescue" (nivel 2)
-  let nextMode = null;         // qué hará el botón Continuar del overlayWin
+  let nextMode = null;
 
   // RESCATE
   let aldeano = null;
@@ -28,12 +28,12 @@
 
   // ---------- Diálogos intro ----------
   const dialogLines = [
-    { who:'knight', name:'Caballero', text:'Os doy la bienvenida a Tactic Heroes. Nuestro objetivo es derrotar al ejército rival.' },
-    { who:'archer', name:'Arquera',   text:'Selecciona un personaje para ver su rango de movimiento y después elegir dónde colocarlo.' },
-    { who:'knight', name:'Caballero', text:'El caballero ataca si está adyacente al enemigo y la arquera a una casilla de distancia.' },
-    { who:'archer', name:'Arquera',   text:'Todo listo. ¡Entremos en combate!' }
+    { who:'knight', name:'Guerrera', text:'Os doy la bienvenida a Tactic Heroes. Nuestro objetivo es derrotar al ejército rival.' },
+    { who:'archer', name:'Arquero',  text:'Selecciona un personaje para ver su rango de movimiento y después elige dónde colocarlo.' },
+    { who:'knight', name:'Guerrera', text:'La guerrera ataca adyacente y el arquero a una casilla de distancia.' },
+    { who:'archer', name:'Arquero',  text:'Todo listo. ¡Entremos en combate!' }
   ];
-  let dlgIndex = 0, typing=false, typeTimer=null, speakPopTimer=null;
+  let dlgIndex = 0, typing=false, typeTimer=null;
 
   // Unidades del jugador
   const makeKnight = () => ({
@@ -71,15 +71,14 @@
   const btnReintentar = document.getElementById("btnReintentar");
   const turnBanner = document.getElementById("turnBanner");
 
-  // Portada + diálogo
   const portada = document.getElementById("portada");
   const btnJugar = document.getElementById("btnJugar");
   const dialog = document.getElementById("dialogScene");
   const dialogNameEl = document.getElementById("dialogName");
   const dialogTextEl = document.getElementById("dialogText");
   const btnDialogNext = document.getElementById("btnDialogNext");
-  const charKnight = document.getElementById("charKnight");
-  const charArcher = document.getElementById("charArcher");
+  const charKnight = document.getElementById("charKnight");   // GuerreraDialogo.PNG (izq)
+  const charArcher = document.getElementById("charArcher");   // ArqueroDialogo.PNG  (der)
 
   // ---------- Banner turno ----------
   function showTurnBanner(text){
@@ -89,14 +88,10 @@
   }
   function setTurno(t){
     turno = t;
-    showTurnBanner(
-      t==="jugador" ? "TU TURNO"
-      : t==="enemigo" ? "TURNO ENEMIGO"
-      : "FIN DE PARTIDA"
-    );
+    showTurnBanner(t==="jugador" ? "TU TURNO" : t==="enemigo" ? "TURNO ENEMIGO" : "FIN DE PARTIDA");
   }
 
-  // ---------- Layout ----------
+  // ---------- Layout / orientación ----------
   function getUsableViewport(){
     const w = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
     const h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
@@ -117,7 +112,6 @@
   window.addEventListener('orientationchange', ajustarTamanoTablero);
   new ResizeObserver(()=>ajustarTamanoTablero()).observe(document.body);
 
-  // ---------- Bloqueo vertical (ajustado para portada) ----------
   function isLandscape(){ return window.innerWidth > window.innerHeight; }
   function applyOrientationLock(){
     const blocker = document.getElementById("orientationBlocker");
@@ -143,10 +137,9 @@
   const enLineaRecta = (a,b) => (a.fila===b.fila) || (a.col===b.col);
   function getCelda(f,c){ return mapa.querySelector(`.celda[data-key="${f},${c}"]`); }
 
-  // ---------- Oleadas (nivel 1: skirmish) ----------
+  // ---------- Spawns (skirmish) ----------
   function spawnFase(){
-    if (gameMode === "rescue") return; // no usar en rescate
-
+    if (gameMode === "rescue") return;
     enemies = [];
     const count = (fase === 1) ? 3 : (fase === 2) ? 4 : 0;
     if (count === 0) return;
@@ -171,7 +164,7 @@
     if (turno==="jugador") players.forEach(p=>{ p.acted=false; p.mp=PLAYER_MAX_MP; });
   }
 
-  // === RESCATE: spawner y setup ===
+  // ---------- RESCATE ----------
   function randomSalida(){ salida.fila = 0; salida.col = Math.floor(Math.random()*COLS); }
   function spawnRescue(){
     enemies = [];
@@ -218,7 +211,6 @@
         if (seleccionado && celdasMovibles.has(key(f,c))) celda.classList.add("movible");
         if (seleccionado && seleccionado.fila===f && seleccionado.col===c) celda.classList.add("seleccionada");
 
-        // Jugadores
         for (const p of players){
           if (p.vivo && p.fila===f && p.col===c){
             const img = document.createElement("img");
@@ -228,7 +220,6 @@
             celda.appendChild(img);
           }
         }
-        // Aldeano
         if (gameMode==="rescue" && aldeano?.vivo && aldeano.fila===f && aldeano.col===c){
           const img = document.createElement("img");
           img.src = aldeano.retrato || "assets/archer.PNG";
@@ -236,7 +227,6 @@
           img.className = "fichaMiniImg villager";
           celda.appendChild(img);
         }
-        // Enemigos
         for (const e of enemies){
           if (e.vivo && e.fila===f && e.col===c){
             const img = document.createElement("img");
@@ -380,7 +370,6 @@
         seleccionado.mp = Math.max(0, seleccionado.mp - coste);
         renderFicha(seleccionado);
 
-        // Victoria por llegada a salida en RESCATE
         if (gameMode==="rescue" && seleccionado===aldeano && f===salida.fila && c===salida.col){
           setTurno("fin");
           overlayWin.querySelector("h1").textContent = "MISIÓN COMPLETADA";
@@ -458,20 +447,16 @@
     setTimeout(()=>{
       if(!objetivo.vivo){ u.kills=(u.kills||0)+1; }
 
-      u.acted = true;
-      u.mp = 0;
+      u.acted = true; u.mp = 0;
       seleccionado = null; celdasMovibles.clear(); distSel=null;
       acciones.innerHTML="";
 
-      // 👇 Si termina oleada/nivel durante TU turno, fijamos nextMode correctamente
+      // Si termina oleada/nivel durante TU turno
       if (gameMode==="skirmish" && enemies.every(e=>!e.vivo)) {
         if (fase === 1){
-          fase = 2;
-          spawnFase();
-          dibujarMapa();
+          fase = 2; spawnFase(); dibujarMapa();
         } else if (fase === 2){
-          fase = 3;
-          nextMode = "rescue"; // pasar a RESCATE
+          fase = 3; nextMode = "rescue";
           overlayWin.querySelector("h1").textContent = "NIVEL COMPLETADO";
           overlayWin.style.display = "grid";
         }
@@ -502,7 +487,6 @@
       if (!en.vivo) continue;
       en.mp = ENEMY_MAX_MP;
 
-      // elegir objetivo (prioriza aldeano en RESCATE)
       let objetivos = [];
       if (gameMode==="rescue" && aldeano?.vivo) objetivos.push(aldeano);
       objetivos.push(...vivosJ);
@@ -512,7 +496,6 @@
       let mejor = manhattan(en, objetivo);
       for (const p of objetivos){ const d = manhattan(en, p); if (d < mejor){ mejor = d; objetivo = p; } }
 
-      // moverse hasta 3 pasos evitando choques y zona no jugable
       const step = (a,b)=> a<b?1:(a>b?-1:0);
       while (en.mp > 0){
         if (manhattan(en, objetivo) === 1) break;
@@ -543,12 +526,10 @@
     if (controlables.every(p=>!p.vivo)) { setTurno("fin"); }
     else {
       setTurno("jugador");
-      // fin de oleada/nivel si termina en turno ENEMIGO (skirmish)
       if (gameMode==="skirmish" && enemies.every(e=>!e.vivo)) {
         if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
         else if (fase === 2){
-          fase = 3;
-          nextMode = "rescue";
+          fase = 3; nextMode = "rescue";
           overlayWin.querySelector("h1").textContent = "NIVEL COMPLETADO";
           overlayWin.style.display="grid";
         }
@@ -556,24 +537,16 @@
     }
   }
 
-  // ---------- Typewriter y escena de diálogo ----------
-  function clearPop(){ [charKnight, charArcher].forEach(el=>el && el.classList.remove('pop','speaking')); }
+  // ---------- Diálogo: hablante resaltado (sin animaciones) ----------
+  function clearSpeaker(){
+    [charKnight, charArcher].forEach(el => el && el.classList.remove('speaking'));
+  }
   function setActiveSpeaker(){
-    clearTimeout(speakPopTimer);
     const line = dialogLines[dlgIndex];
     if (!line) return;
-
-    if (charKnight && charArcher){
-      charKnight.style.opacity = '.6';
-      charArcher.style.opacity = '.6';
-      if (line.who === 'knight'){ charKnight.style.opacity='1'; charKnight.classList.add('speaking'); }
-      else { charArcher.style.opacity='1'; charArcher.classList.add('speaking'); }
-      speakPopTimer = setTimeout(()=>{
-        if (line.who === 'knight'){ charKnight.classList.add('pop'); }
-        else { charArcher.classList.add('pop'); }
-      }, 500);
-    }
-
+    clearSpeaker();
+    if (line.who === 'knight'){ charKnight?.classList.add('speaking'); }
+    else { charArcher?.classList.add('speaking'); }
     if (dialogNameEl) dialogNameEl.textContent = line.name;
   }
 
@@ -614,7 +587,7 @@
       return;
     }
     dlgIndex++;
-    clearPop();
+    clearSpeaker();
     if (dlgIndex >= dialogLines.length){
       dialog.style.display = "none";
       mapa.style.display = "grid";
@@ -625,7 +598,7 @@
     showCurrentDialog();
   }
 
-  // === RESCATE: arranque del nivel 2 ===
+  // --- Arranque RESCATE ---
   function startRescueLevel(){
     gameMode = "rescue";
     players = [ makeKnight(), makeArcher() ];
@@ -641,10 +614,8 @@
 
   // ---------- Init ----------
   function init(){
-    // Estado inicial: portada visible, tablero oculto.
     ajustarTamanoTablero();
 
-    // Botones overlays
     if (btnContinuar){
       btnContinuar.onclick = ()=>{
         if (nextMode === "rescue"){
@@ -658,11 +629,8 @@
         }
       };
     }
-    if (btnReintentar){
-      btnReintentar.onclick = ()=>{ location.reload(); };
-    }
+    if (btnReintentar){ btnReintentar.onclick = ()=>{ location.reload(); }; }
 
-    // Portada → Diálogo → Juego
     if (btnJugar){
       btnJugar.onclick = ()=>{
         if (portada) portada.style.display = "none";
@@ -671,7 +639,6 @@
           dialog.style.display = "block";
           showCurrentDialog();
         } else {
-          // fallback sin diálogo
           players=[makeKnight(),makeArcher()];
           fase = 1; gameMode="skirmish";
           mapa.style.display = "grid";
@@ -686,7 +653,7 @@
 
     setupOrientationLock();
 
-    // Prepara el nivel 1 por debajo (cuando cierre diálogo)
+    // Prepara el nivel 1 por debajo
     players=[makeKnight(),makeArcher()];
     fase=1; gameMode="skirmish";
     spawnFase(); dibujarMapa();
