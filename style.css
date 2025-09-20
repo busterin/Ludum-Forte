@@ -303,3 +303,44 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   outline-offset: -2px;
   border-radius: 6px;
 }
+
+/* =======================================================
+   ESQUINADO AGRESIVO EN DISPOSITIVOS PEQUEÑOS
+   (empuja los retratos fuera de pantalla para liberar centro)
+======================================================= */
+
+/* ≤ 600px de ancho: empuje moderado */
+@media (max-width: 600px){
+  #dialogScene img#charArcher{
+    left: -4vw;                 /* saca un poco por la izquierda */
+    transform: translateX(-8%);
+  }
+  #dialogScene img#charKnight{
+    right: -4vw;                /* saca un poco por la derecha */
+    transform: translateX(8%);
+  }
+}
+
+/* ≤ 480px de ancho: empuje fuerte */
+@media (max-width: 480px){
+  #dialogScene img#charArcher{
+    left: -8vw;                 /* más fuera aún */
+    transform: translateX(-14%);
+  }
+  #dialogScene img#charKnight{
+    right: -8vw;
+    transform: translateX(14%);
+  }
+}
+
+/* ≤ 380px de ancho: empuje extremo (anti-solape total) */
+@media (max-width: 380px){
+  #dialogScene img#charArcher{
+    left: -10vw;                /* casi pegado al borde físico del sprite */
+    transform: translateX(-18%);
+  }
+  #dialogScene img#charKnight{
+    right: -10vw;
+    transform: translateX(18%);
+  }
+}
