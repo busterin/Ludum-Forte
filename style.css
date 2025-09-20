@@ -274,3 +274,42 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   outline-offset: -2px;
   border-radius: 6px;
 }
+
+/* === Diálogo: tamaño y alineación de cintura con la caja === */
+:root{
+  /* Altura y posición de la caja de diálogo */
+  --dlg-bottom: 2vh;   /* distancia al borde inferior */
+  --dlg-height: 24vh;  /* altura mínima de la caja */
+
+  /* Tamaño del personaje y “dónde está la cintura” */
+  --char-h: 58vh;        /* ~mitad del 115vh anterior */
+  --char-waist-vh: 26vh; /* ~45% de la altura del sprite (0.45 * 58 ≈ 26) */
+}
+
+/* Caja de diálogo más “sólida” y con altura controlada */
+#dialogScene .dialog-box{
+  bottom: var(--dlg-bottom);
+  min-height: var(--dlg-height);
+}
+
+/* Retratos enormes pero controlados, alineando cintura con la parte superior de la caja */
+#dialogScene .dialog-char{
+  position: absolute;
+  height: var(--char-h);
+  width: auto;
+  max-width: none;
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-vh));
+  object-fit: contain;
+  image-rendering: pixelated;
+  opacity: .35;
+  transition: opacity .18s ease, filter .18s ease;
+  pointer-events: none;
+}
+#dialogScene .dialog-char.left  { left:  2%; transform: none; }
+#dialogScene .dialog-char.right { right: 2%; transform: none; }
+
+/* Hablante destacado (igual que antes) */
+#dialogScene .dialog-char.speaking{
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
+}
