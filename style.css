@@ -1,22 +1,38 @@
+/* ===========================
+   VARIABLES DE TEMA
+=========================== */
 :root{
-  --cell: 40px; /* recalculada por JS para ocupar lo máximo en 9:16 */
+  /* Tablero */
+  --cell: 40px;
   --gap: 0px;
-
-  /* Dimensiones del tablero 9:16 */
   --cols: 9;
   --rows: 16;
-
-  /* Filas no jugables (coincidir con JS) */
   --npRows: 4;
 
-  /* Altura del HUD en "filas" (≤ npRows) y desplazamiento hacia arriba */
+  /* HUD dentro del mapa */
   --hudRows: 1.6;
-  --hudOffset: 2.2; /* súbelo a 2.4 si lo quieres aún más arriba */
+  --hudOffset: 2.2;
 
   /* Fondo compartido */
   --bg-url: url("assets/background.PNG");
+
+  /* Diálogo: caja y personajes (ajustables) */
+  --dlg-bottom: 2vh;   /* distancia de la caja al borde inferior */
+  --dlg-height: 24vh;  /* altura mínima de la caja */
+
+  /* Tamaño/cintura de cada retrato */
+  /* IZQ (Arquero) */
+  --char-h-left: 78vh;
+  --char-waist-left: 35vh;
+
+  /* DER (Guerrera) — un poco mayor para equilibrar */
+  --char-h-right: 84vh;
+  --char-waist-right: 38vh;
 }
 
+/* ===========================
+   RESETEO BÁSICO
+=========================== */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 
@@ -30,7 +46,6 @@ body {
   display: flex;
   flex-direction: column;
   padding-bottom: env(safe-area-inset-bottom);
-
   background-image: var(--bg-url);
   background-size: cover;
   background-position: center;
@@ -38,7 +53,9 @@ body {
   background-color: #000;
 }
 
-/* ---------- Portada ---------- */
+/* ===========================
+   PORTADA
+=========================== */
 #portada {
   position: fixed; inset: 0; background: #000;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -51,20 +68,19 @@ body {
 }
 #portada .btn-jugar {
   position: absolute;
-  bottom: 6%;   /* 👈 bajado un poco más */
+  bottom: 6%; /* ↓ como pediste */
   padding: 14px 26px;
-  font-size: 20px;
-  font-weight: bold;
-  border-radius: 12px;
-  border: 2px solid #145a32;
+  font-size: 20px; font-weight: bold;
+  border-radius: 12px; border: 2px solid #145a32;
   background: linear-gradient(180deg, #27ae60, #1e8449);
-  color: #fff;
-  cursor: pointer;
+  color: #fff; cursor: pointer;
   box-shadow: 0 4px 14px rgba(0,0,0,.4);
 }
 #portada .btn-jugar:hover { background: linear-gradient(180deg, #2ecc71, #229954); }
 
-/* ---------- Escena de diálogo ---------- */
+/* ===========================
+   ESCENA DE DIÁLOGO
+=========================== */
 #dialogScene{ position: fixed; inset: 0; z-index: 12000; display: block; }
 #dialogScene .dialog-bg{
   position: absolute; inset: 0;
@@ -73,49 +89,63 @@ body {
   filter: brightness(.95) saturate(1.05);
 }
 
-/* Retratos de diálogo: ENORMES y MUY ABAJO (forzado) */
+/* -------- Retratos estáticos, GRANDES y ESQUINADOS --------
+   (sin animaciones; sin max-width que los encoja) */
 #dialogScene .dialog-char{
   position: absolute;
-  bottom: -8vh;        /* más abajo que el borde inferior */
-  height: 115vh;       /* más altos que la pantalla */
-  width: auto;         /* respetar proporción */
-  max-width: none;     /* sin límite de ancho que los “frene” */
+  width: auto;
+  max-width: none;            /* crítico: no limitar por ancho */
   object-fit: contain;
   image-rendering: pixelated;
-  opacity: .35;
+  opacity: .35;               /* por defecto translúcidos */
   transition: opacity .18s ease, filter .18s ease;
   pointer-events: none;
 }
-#dialogScene .dialog-char.left  { left: 2%;  transform: none; }
-#dialogScene .dialog-char.right { right: 2%; transform: none; }
 
-/* Hablante destacado */
+/* IZQUIERDA: Arquero en la ESQUINA */
+#dialogScene img#charArcher{
+  left: 0 !important;         /* esquina izquierda */
+  right: auto !important;
+  height: var(--char-h-left);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
+  transform: translateX(-6%); /* empuja un poco hacia fuera para liberar centro */
+}
+
+/* DERECHA: Guerrera en la ESQUINA (algo mayor) */
+#dialogScene img#charKnight{
+  right: 0 !important;        /* esquina derecha */
+  left: auto !important;
+  height: var(--char-h-right);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
+  transform: translateX(6%);  /* empuja un poco hacia fuera para liberar centro */
+}
+
+/* El hablante se resalta */
 #dialogScene .dialog-char.speaking{
   opacity: 1 !important;
   filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
 
-/* Caja de diálogo (visual novel) */
-.dialog-box{
+/* -------- Caja de diálogo (visual novel) -------- */
+#dialogScene .dialog-box{
   position: absolute; left: 2.5%; right: 2.5%;
-  bottom: 2%; /* muy baja para tapar más las ilustraciones */
+  bottom: var(--dlg-bottom);
+  min-height: var(--dlg-height);
   background: rgba(5,10,14,.82);
   border: 1px solid rgba(255,255,255,.20);
   border-radius: 14px;
-  padding: 14px 16px 16px 16px; /* más alta */
+  padding: 14px 16px 16px 16px;
   box-shadow: 0 16px 32px rgba(0,0,0,.5);
-  backdrop-filter: blur(6px); /* más blur */
+  backdrop-filter: blur(6px);
+  z-index: 1; /* garantiza que la caja queda por encima de los retratos */
 }
-
-/* Sutil degradado superior para integrar con los personajes */
-.dialog-box::before{
+#dialogScene .dialog-box::before{
   content:"";
   position:absolute; left:-1px; right:-1px; top:-18px; height:18px;
   background: linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,0));
   border-top-left-radius: 14px; border-top-right-radius: 14px;
   pointer-events:none;
 }
-
 .dialog-name{
   font-weight: 900; margin: 2px 0 6px 0; color: #fff; letter-spacing: .2px; font-size: 15px;
 }
@@ -125,11 +155,13 @@ body {
 .dialog-cta{ display: flex; justify-content: flex-end; }
 .dialog-box .small{ padding: 8px 13px; font-size: 13px; border-radius: 10px; }
 
-/* Cursor de tecleo */
+/* Cursor tecleando */
 .type-cursor::after{ content: "▌"; display: inline-block; margin-left: 2px; animation: cursorBlink .9s steps(1) infinite; }
 @keyframes cursorBlink { 50% { opacity: 0; } }
 
-/* ---------- Overlays ---------- */
+/* ===========================
+   OVERLAYS
+=========================== */
 .overlay {
   position: fixed; inset: 0; z-index: 9999;
   display: grid; place-items: center;
@@ -148,7 +180,9 @@ body {
 }
 .overlay-box h1{ margin: 0 0 14px 0; }
 
-/* ---------- Banner de turno ---------- */
+/* ===========================
+   BANNER DE TURNO
+=========================== */
 .turn-banner{
   position: fixed; left: 50%; top: max(10px, env(safe-area-inset-top));
   transform: translateX(-50%); z-index: 8000;
@@ -157,7 +191,9 @@ body {
   backdrop-filter: blur(3px); box-shadow: 0 6px 20px rgba(0,0,0,.35);
 }
 
-/* ---------- Tablero 9x16 ---------- */
+/* ===========================
+   TABLERO 9x16 + HUD
+=========================== */
 #mapa {
   flex: 1 1 auto;
   display: grid;
@@ -172,8 +208,6 @@ body {
   box-shadow: 0 8px 20px rgba(0,0,0,.3);
   position: relative;
 }
-
-/* HUD dentro del mapa, más arriba en la zona no jugable */
 #hud{
   position: absolute; left: 0; right: 0;
   top: calc(var(--cell) * (var(--rows) - var(--hudRows) - var(--hudOffset)));
@@ -182,15 +216,15 @@ body {
   background: transparent; pointer-events: auto;
 }
 
-/* Celdas y selección */
+/* Celdas / selección */
 .celda { width: var(--cell); height: var(--cell); display: grid; place-items: center; cursor: pointer; position: relative; z-index: 0; }
 .celda.movible { outline: 3px solid rgba(48,140,255,0.55); outline-offset: -1px; }
 .celda.seleccionada{ box-shadow: inset 0 0 0 3px #1b76ff; }
 
-/* Sprites */
+/* Sprites del tablero */
 .fichaMiniImg { width: 90%; height: 90%; object-fit: contain; image-rendering: pixelated; position: relative; z-index: 1; pointer-events: none; }
 
-/* Ficha + acciones en HUD */
+/* HUD */
 #ficha { display: none; width: 100%; text-align: left; background: rgba(16,20,24,.88); color: #ddd; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 6px 8px; }
 .card { display: grid; grid-template-columns: 52px 1fr; gap: 8px; align-items: center; }
 .card .portrait { width: 52px; height: 52px; border-radius: 8px; background-size: cover; background-position: center; background-repeat: no-repeat; border: 1px solid rgba(255,255,255,.12); }
@@ -205,7 +239,9 @@ body {
 button { padding: 7px 10px; font-size: 13px; border-radius: 10px; border: 1px solid #c9d2e3; background: white; color: #111; cursor: pointer; }
 button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
 
-/* ---------- FX ---------- */
+/* ===========================
+   FX
+=========================== */
 @keyframes flash-yellow { 0% { background-color: rgba(255,230,0,.75);} 100% {background-color: transparent;} }
 @keyframes flash-red    { 0% { background-color: rgba(255,60,60,.75);}  100% {background-color: transparent;} }
 .celda.flash-player { animation: flash-yellow .28s ease-out; }
@@ -227,18 +263,9 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
 @keyframes death-pop { 0%{opacity:1; transform: scale(1);} 100%{opacity:0; transform: scale(1.15);} }
 .death-pop { animation: death-pop .35s ease-out forwards; }
 
-/* --- Screen Shake --- */
-@keyframes screen-shake {
-  0% { transform: translate(0, 0); }
-  20% { transform: translate(-6px, 4px); }
-  40% { transform: translate(6px, -3px); }
-  60% { transform: translate(-4px, 2px); }
-  80% { transform: translate(4px, -2px); }
-  100% { transform: translate(0, 0); }
-}
-.shake { animation: screen-shake 0.4s ease-in-out; }
-
-/* ---------- Bloqueo de orientación horizontal ---------- */
+/* ===========================
+   BLOQUEO DE ORIENTACIÓN
+=========================== */
 #orientationBlocker{
   position: fixed; inset: 0; z-index: 20000;
   display: grid; place-items: center; background: rgba(0,0,0,.85); backdrop-filter: blur(2px);
@@ -249,7 +276,9 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   text-align: center; font-weight: 700; box-shadow: 0 12px 28px rgba(0,0,0,.45);
 }
 
-/* Ultra-compacto para pantallas muy pequeñas */
+/* ===========================
+   RESPONSIVE PEQUEÑO
+=========================== */
 @media (max-width: 380px){
   .card { grid-template-columns: 46px 1fr; gap: 6px; }
   .card .portrait { width: 46px; height: 46px; }
@@ -258,9 +287,9 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   button { padding: 6px 9px; font-size: 12px; }
 }
 
-/* ========================= */
-/* === Extras RESCATE ====== */
-/* ========================= */
+/* ===========================
+   RESCATE (marco de salida)
+=========================== */
 .salida{
   width: 70%;
   height: 70%;
@@ -273,214 +302,4 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   outline: 2px solid #f1c40f;
   outline-offset: -2px;
   border-radius: 6px;
-}
-
-/* === Diálogo: tamaño y alineación de cintura con la caja === */
-:root{
-  /* Altura y posición de la caja de diálogo */
-  --dlg-bottom: 2vh;   /* distancia al borde inferior */
-  --dlg-height: 24vh;  /* altura mínima de la caja */
-
-  /* Tamaño del personaje y “dónde está la cintura” */
-  --char-h: 58vh;        /* ~mitad del 115vh anterior */
-  --char-waist-vh: 26vh; /* ~45% de la altura del sprite (0.45 * 58 ≈ 26) */
-}
-
-/* Caja de diálogo más “sólida” y con altura controlada */
-#dialogScene .dialog-box{
-  bottom: var(--dlg-bottom);
-  min-height: var(--dlg-height);
-}
-
-/* Retratos enormes pero controlados, alineando cintura con la parte superior de la caja */
-#dialogScene .dialog-char{
-  position: absolute;
-  height: var(--char-h);
-  width: auto;
-  max-width: none;
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-vh));
-  object-fit: contain;
-  image-rendering: pixelated;
-  opacity: .35;
-  transition: opacity .18s ease, filter .18s ease;
-  pointer-events: none;
-}
-#dialogScene .dialog-char.left  { left:  2%; transform: none; }
-#dialogScene .dialog-char.right { right: 2%; transform: none; }
-
-/* Hablante destacado (igual que antes) */
-#dialogScene .dialog-char.speaking{
-  opacity: 1 !important;
-  filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
-}
-/* ===== Diálogo: esquinado + tamaños por personaje ===== */
-:root{
-  /* Caja de diálogo (debe coincidir con lo que ya tienes) */
-  --dlg-bottom: 2vh;
-  --dlg-height: 24vh;
-
-  /* Tamaños y “altura de cintura” por cada retrato */
-  --char-h-left: 58vh;   /* Arquero (izquierda) */
-  --char-waist-left: 26vh;
-
-  --char-h-right: 64vh;  /* Guerrera (derecha) — un poco más grande */
-  --char-waist-right: 29vh;
-}
-
-/* Reset común (mantiene el highlight por .speaking) */
-#dialogScene .dialog-char{
-  position: absolute;
-  width: auto; max-width: none;   /* sin tope que recentre */
-  object-fit: contain;
-  image-rendering: pixelated;
-  opacity: .35;
-  transition: opacity .18s ease, filter .18s ease;
-  pointer-events: none;
-}
-
-/* 🔹 Arquero a la izquierda, bien esquinado */
-#dialogScene #charArcher{
-  left: 2vw;                         /* pegado al borde izq */
-  height: var(--char-h-left);
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
-  max-width: 44vw;                   /* evita invadir el centro */
-}
-
-/* 🔹 Guerrera a la derecha, más grande para equilibrar */
-#dialogScene #charKnight{
-  right: 2vw;                        /* pegado al borde dcho */
-  height: var(--char-h-right);
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
-  max-width: 48vw;                   /* un pelín más ancha que el arquero */
-}
-
-/* Hablante destacado (igual que antes) */
-#dialogScene .dialog-char.speaking{
-  opacity: 1 !important;
-  filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
-}
-:root{
-  /* Caja (deja como ya la tengas) */
-  --dlg-bottom: 2vh;
-  --dlg-height: 24vh;
-
-  /* Incremento suave de tamaño */
-  --char-h-left: 62vh;    /* antes 58vh */
-  --char-waist-left: 28vh;/* antes 26vh */
-
-  --char-h-right: 68vh;   /* antes 64vh */
-  --char-waist-right: 31vh;/* antes 29vh */
-}
-:root{
-  /* Caja (como ya la tenías) */
-  --dlg-bottom: 2vh;
-  --dlg-height: 24vh;
-
-  /* Tamaños más grandes */
-  --char-h-left: 70vh;     /* antes 62vh */
-  --char-waist-left: 32vh; /* antes 28vh */
-
-  --char-h-right: 76vh;    /* antes 68vh */
-  --char-waist-right: 35vh;/* antes 31vh */
-}
-/* Forzar que el ancho no limite el escalado vertical */
-#dialogScene #charArcher,
-#dialogScene #charKnight{
-  width: auto;
-  max-width: none;     /* ← quita el freno */
-}
-
-/* Tamaño visible (ajusta estos números a tu gusto) */
-:root{
-  --char-h-left: 78vh;     /* Arquero (izq) */
-  --char-waist-left: 35vh;
-
-  --char-h-right: 84vh;    /* Guerrera (der) un poco más grande */
-  --char-waist-right: 38vh;
-}
-
-/* Posicionamiento (con cintura alineada a la caja) */
-#dialogScene #charArcher{
-  left: 2vw;
-  height: var(--char-h-left);
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
-}
-
-#dialogScene #charKnight{
-  right: 2vw;
-  height: var(--char-h-right);
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
-}
-/* Ajuste de personajes: pegados a los extremos sin solaparse */
-#dialogScene #charArcher {
-  position: absolute;
-  left: 0;                   /* bien pegado a la izquierda */
-  height: var(--char-h-left);
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
-  max-width: 42vw;           /* ≤ 42% del ancho de pantalla */
-  width: auto;
-  object-fit: contain;
-}
-
-#dialogScene #charKnight {
-  position: absolute;
-  right: 0;                  /* bien pegada a la derecha */
-  height: var(--char-h-right);
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
-  max-width: 42vw;           /* ≤ 42% del ancho de pantalla */
-  width: auto;
-  object-fit: contain;
-}
-/* Personajes grandes y pegados a los extremos, aunque se corte un poco */
-#dialogScene #charArcher {
-  position: absolute;
-  left: 0;  /* extremo izquierdo */
-  height: var(--char-h-left);
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
-  width: auto;
-  max-width: none;           /* 👈 sin límite de ancho */
-  object-fit: contain;
-  overflow: hidden;
-}
-
-#dialogScene #charKnight {
-  position: absolute;
-  right: 0; /* extremo derecho */
-  height: var(--char-h-right);
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
-  width: auto;
-  max-width: none;           /* 👈 sin límite de ancho */
-  object-fit: contain;
-  overflow: hidden;
-}
-/* === Forzar esquina dura sin perder tamaño === */
-/* Mantiene tus alturas grandes actuales con --char-h-left / --char-h-right */
-#dialogScene img#charArcher{
-  position: absolute;
-  left: 0 !important;     /* esquina izquierda */
-  right: auto !important; /* reset del lado opuesto */
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
-  height: var(--char-h-left);
-  width: auto;
-  max-width: none;         /* no limitar por ancho */
-  object-fit: contain;
-  transform: translateX(-6%); /* empuja un pelín hacia fuera para que no invada el centro */
-}
-
-#dialogScene img#charKnight{
-  position: absolute;
-  right: 0 !important;    /* esquina derecha */
-  left: auto !important;  /* reset del lado opuesto */
-  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
-  height: var(--char-h-right);
-  width: auto;
-  max-width: none;         /* no limitar por ancho */
-  object-fit: contain;
-  transform: translateX(6%);  /* empuja un pelín hacia fuera para que no invada el centro */
-}
-
-/* Resalta al hablante como ya tenías */
-#dialogScene .dialog-char.speaking{
-  opacity: 1 !important;
-  filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
