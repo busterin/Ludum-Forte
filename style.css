@@ -73,25 +73,24 @@ body {
   filter: brightness(.95) saturate(1.05);
 }
 
-/* Personajes del diálogo: enormes y muy abajo */
-.dialog-char {
+/* Retratos de diálogo: ENORMES y MUY ABAJO (forzado) */
+#dialogScene .dialog-char{
   position: absolute;
-  bottom: -4%;          /* 👈 incluso más abajo, sobresaliendo */
-  height: 110%;         /* 👈 muchísimo más grandes */
-  max-width: 55vw;      /* permite que ocupen más ancho */
+  bottom: -8vh;        /* más abajo que el borde inferior */
+  height: 115vh;       /* más altos que la pantalla */
+  width: auto;         /* respetar proporción */
+  max-width: none;     /* sin límite de ancho que los “frene” */
   object-fit: contain;
   image-rendering: pixelated;
-  opacity: .35;         /* por defecto translúcidos */
+  opacity: .35;
   transition: opacity .18s ease, filter .18s ease;
   pointer-events: none;
 }
+#dialogScene .dialog-char.left  { left: 2%;  transform: none; }
+#dialogScene .dialog-char.right { right: 2%; transform: none; }
 
-/* Colocación fija */
-.dialog-char.left  { left: 2%;  transform: none; }
-.dialog-char.right { right: 2%; transform: none; }
-
-/* El que habla se resalta */
-.dialog-char.speaking {
+/* Hablante destacado */
+#dialogScene .dialog-char.speaking{
   opacity: 1 !important;
   filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
