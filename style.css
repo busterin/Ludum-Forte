@@ -359,3 +359,15 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   opacity: 1 !important;
   filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
+:root{
+  /* Caja (deja como ya la tengas) */
+  --dlg-bottom: 2vh;
+  --dlg-height: 24vh;
+
+  /* Incremento suave de tamaño */
+  --char-h-left: 62vh;    /* antes 58vh */
+  --char-waist-left: 28vh;/* antes 26vh */
+
+  --char-h-right: 68vh;   /* antes 64vh */
+  --char-waist-right: 31vh;/* antes 29vh */
+}
