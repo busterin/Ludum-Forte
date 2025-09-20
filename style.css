@@ -411,3 +411,23 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   height: var(--char-h-right);
   bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
 }
+/* Ajuste de personajes: pegados a los extremos sin solaparse */
+#dialogScene #charArcher {
+  position: absolute;
+  left: 0;                   /* bien pegado a la izquierda */
+  height: var(--char-h-left);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
+  max-width: 42vw;           /* ≤ 42% del ancho de pantalla */
+  width: auto;
+  object-fit: contain;
+}
+
+#dialogScene #charKnight {
+  position: absolute;
+  right: 0;                  /* bien pegada a la derecha */
+  height: var(--char-h-right);
+  bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
+  max-width: 42vw;           /* ≤ 42% del ancho de pantalla */
+  width: auto;
+  object-fit: contain;
+}
