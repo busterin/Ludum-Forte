@@ -1,6 +1,6 @@
 /* ============================================
    TACTIC HEROES — INTRO CROSSFADE + TUTORIAL + RESCATE
-   v=rescate-3
+   v=rescate-6
 ============================================ */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
@@ -54,7 +54,7 @@
   const portada = document.getElementById("portada");
   const btnJugar = document.getElementById("btnJugar");
 
-  // Intro cross-fade (evita ver el mapa de fondo)
+  // Intro cross-fade
   const introScene = document.getElementById("introScene");
   const introBgA = document.getElementById("introBgA");
   const introBgB = document.getElementById("introBgB");
@@ -84,9 +84,9 @@
   const dialogNameEl = document.getElementById("dialogName");
   const dialogTextEl = document.getElementById("dialogText");
   const btnDialogNext = document.getElementById("btnDialogNext");
-  const charKnight = document.getElementById("charKnight");       // Risko
-  const charArcher = document.getElementById("charArcher");       // Hans
-  const charVillagers = document.getElementById("charVillagers"); // Aldeanos
+  const charKnight = document.getElementById("charKnight");       // Risko (derecha)
+  const charArcher = document.getElementById("charArcher");       // Hans (izquierda)
+  const charVillagers = document.getElementById("charVillagers"); // Aldeanos (centro)
   const tutorialBar = document.getElementById("tutorialBar");
 
   // ---------- Banner ----------
@@ -205,18 +205,18 @@
     if (tutorialBar){ tutorialBar.style.display = "none"; tutorialBar.textContent = ""; }
   }
 
-  // ---------- RESCATE ----------
+  // ---------- RESCATE (coordenadas dentro del área jugable) ----------
   function startRescueScenario(){
     rescueMode = true;
-    // Jugadores
+    // Jugadores (filas < 12 para que sean jugables)
     players = [
-      { ...makeKnight(), fila: 12, col: 1, mp: PLAYER_MAX_MP, acted: false },
-      { ...makeArcher(), fila: 12, col: 3, mp: PLAYER_MAX_MP, acted: false },
+      { ...makeKnight(), fila: 10, col: 1, mp: PLAYER_MAX_MP, acted: false },
+      { ...makeArcher(), fila: 10, col: 3, mp: PLAYER_MAX_MP, acted: false },
     ];
-    // Aldeanos aliados (no atacan)
+    // Aldeanos aliados
     villagersUnit = {
       id: "V", tipo: "aldeanos",
-      fila: 13, col: 2, vivo: true, nombre: "Aldeanos",
+      fila: 11, col: 2, vivo: true, nombre: "Aldeanos",
       hp: 60, maxHp: 60,
       retrato: "assets/Aldeanos.PNG", nivel: 1, kills: 0,
       damage: 0, range: [], acted: false, mp: 3
@@ -646,35 +646,46 @@
   }
 
   // ---------- Diálogos ----------
-  // Modo actual: "intro" (Hans/Risko) o "postWin" (Aldeanos/Hans/Risko)
   let postDialogMode = "intro";
-
   const dialogLinesIntro = [
     { who:'knight', name:'Risko', text:'Ese malnacido de Fortris se ha hecho con el poder. Eres el único guerrero que me queda, Hans.' },
     { who:'archer', name:'Hans',  text:'¡Siempre estaré a tu lado, capitana! Pero debemos buscar donde refugiarnos, llevamos varios días huyendo y aún nos pisan los talones esos soldados…' },
     { who:'knight', name:'Risko', text:'Tenemos que idear un plan para detener a Fortris pero para ello, primero tenemos que sobrevivir. Prepárate porque aquí vienen…' },
     { who:'archer', name:'Hans',  text:'Hace mucho que no teníamos un combate real, más allá de los entrenamientos. Aprovechemos para recordar lo más básico. ¡Vamos!' }
   ];
-
   const dialogLinesPostWin = [
     { who:'villagers', name:'Aldeanos', text:'Esos soldados están arrasando nuestro pueblo. ¡Tenéis que ayudarnos!' },
     { who:'archer',    name:'Hans',     text:'Sé que nos estamos arriesgando mucho pero tenemos que ayudarlos, Risko. No podemos abandonarlos a su suerte.' },
     { who:'knight',    name:'Risko',    text:'¡Contad con nosotros!\nDebemos llevar a los aldeanos al punto marcado sin que los soldados los alcancen\n¡Vamos!' }
   ];
-
   let dlgIndex = 0, typing=false, typeTimer=null;
 
   function currentDialogArray(){ return (postDialogMode==="postWin") ? dialogLinesPostWin : dialogLinesIntro; }
 
   function clearSpeaker(){ [charKnight, charArcher, charVillagers].forEach(el => el && el.classList.remove('speaking')); }
 
+  // Ocultar/mostrar retratos para evitar transparencias raras
   function setActiveSpeaker(){
     const lines = currentDialogArray();
     const line = lines[dlgIndex];
     if (!line) return;
 
-    // Mostrar Aldeanos sólo en diálogo postWin
-    charVillagers.style.display = (postDialogMode === "postWin") ? "block" : "none";
+    if (postDialogMode === "postWin") {
+      if (line.who === 'villagers') {
+        charVillagers.style.display = "block";
+        charKnight.style.display = "none";
+        charArcher.style.display = "none";
+      } else {
+        charVillagers.style.display = "none";
+        charKnight.style.display = "block";
+        charArcher.style.display = "block";
+      }
+    } else {
+      // diálogo de intro (solo Hans y Risko visibles)
+      charVillagers.style.display = "none";
+      charKnight.style.display = "block";
+      charArcher.style.display = "block";
+    }
 
     clearSpeaker();
     if (line.who === 'knight'){ charKnight?.classList.add('speaking'); }
@@ -726,10 +737,8 @@
     if (dlgIndex >= lines.length){
       dialog.style.display = "none";
       if (postDialogMode === "intro"){
-        // Tras diálogo de intro: comenzar tutorial
         startTutorialScenario();
       } else if (postDialogMode === "postWin"){
-        // Tras diálogo Aldeanos: modo rescate
         startRescueScenario();
       }
       applyOrientationLock();
@@ -770,7 +779,6 @@
     ajustarTamanoTablero();
 
     if (btnContinuar){
-      // Se usa en pantalla final del rescate
       btnContinuar.onclick=()=>{ overlayWin.style.display="none"; location.reload(); };
     }
 
@@ -784,7 +792,6 @@
           preloadIntroImages();
           showIntroSlide(true);
         } else if (dialog){
-          // Fallback si no hubiera intro
           dlgIndex = 0; postDialogMode = "intro";
           dialog.style.display = "block";
           showCurrentDialog();
@@ -797,7 +804,6 @@
       startTutorialScenario();
     }
 
-    // ¡IMPORTANTE! Listeners de Continuar (intro y diálogo)
     if (btnIntroNext) btnIntroNext.onclick = advanceIntro;
     if (btnDialogNext) btnDialogNext.onclick = advanceDialog;
 
