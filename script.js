@@ -136,32 +136,31 @@ const makeArcher = () => ({
   const enLineaRecta = (a,b) => (a.fila===b.fila) || (a.col===b.col);
   function getCelda(f,c){ return mapa.querySelector(`.celda[data-key="${f},${c}"]`); }
 
-  // ---------- Spawns (skirmish) ----------
-  function spawnFase(){
-    if (gameMode === "rescue") return;
-    enemies = [];
-    const count = (fase === 1) ? 3 : (fase === 2) ? 4 : 0;
-    if (count === 0) return;
-    const ocupadas = new Set(players.filter(p=>p.vivo).map(p=>key(p.fila,p.col)));
-    for (let i=0; i<count; i++){
-      let f,c;
-      do {
-        f = Math.floor(Math.random()*(ROWS - NON_PLAYABLE_BOTTOM_ROWS));
-        c = Math.floor(Math.random()*COLS);
-      } while (ocupadas.has(key(f,c)));
-      ocupadas.add(key(f,c));
-      enemies.push({
-        id:`E${Date.now()}-${i}`,
-        nombre:`Bandido ${i+1 + (fase===2?3:0)}`,
-        fila:f, col:c, vivo:true,
-        hp:50, maxHp:50,
-        retrato:"assets/enemy.PNG",
-        damage:ENEMY_BASE_DAMAGE,
-        mp: ENEMY_MAX_MP
-      });
-    }
-    if (turno==="jugador") players.forEach(p=>{ p.acted=false; p.mp=PLAYER_MAX_MP; });
+  // ---------- Oleadas ----------
+function spawnFase(){
+  enemies = [];
+  const count = (fase === 1) ? 3 : (fase === 2) ? 4 : 0;
+  if (count === 0) return;
+  const ocupadas = new Set(players.filter(p=>p.vivo).map(p=>key(p.fila,p.col)));
+  for (let i=0; i<count; i++){
+    let f,c;
+    do {
+      f = Math.floor(Math.random()*(ROWS - NON_PLAYABLE_BOTTOM_ROWS));
+      c = Math.floor(Math.random()*COLS);
+    } while (ocupadas.has(key(f,c)));
+    ocupadas.add(key(f,c));
+    enemies.push({
+      id:`E${Date.now()}-${i}`,
+      nombre:`Soldado ${i+1 + (fase===2?3:0)}`,
+      fila:f, col:c, vivo:true,
+      hp:50, maxHp:50,
+      retrato:"assets/enemy.PNG",
+      damage:ENEMY_BASE_DAMAGE,
+      mp: ENEMY_MAX_MP
+    });
   }
+  if (turno==="jugador") players.forEach(p=>{ p.acted=false; p.mp=PLAYER_MAX_MP; });
+}
 
   // ---------- RESCATE ----------
   function randomSalida(){ salida.fila = 0; salida.col = Math.floor(Math.random()*COLS); }
