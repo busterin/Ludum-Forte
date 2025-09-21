@@ -39,7 +39,12 @@
 
   const portada = document.getElementById("portada");
   const btnJugar = document.getElementById("btnJugar");
-
+if (introScene){
+  introIndex = 0;
+  introScene.style.display = "block";
+  preloadIntroImages();     // 👈 precarga
+  showIntroSlide(true);     // 👈 primera imagen sin transición para 0 parpadeo
+} 
   // --- DOM (prólogo) ---
 const introScene = document.getElementById("introScene");
 const introBgA = document.getElementById("introBgA");
