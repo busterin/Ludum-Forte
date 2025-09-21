@@ -23,7 +23,9 @@
 
   <!-- PRÓLOGO / INTRO (4 imágenes + caja de texto) -->
   <div id="introScene" style="display:none">
-    <div class="intro-bg" id="introBg"></div>
+    <!-- Doble capa para cross-fade -->
+<div class="intro-bg layer" id="introBgA"></div>
+<div class="intro-bg layer" id="introBgB"></div>
     <div class="dialog-box">
       <div class="dialog-name" id="introName">Prólogo</div>
       <div class="dialog-text" id="introText"></div>
