@@ -49,12 +49,28 @@
   let introTyping = false, introTimer = null;
 
   // ---------- Diálogos intro (Hans & Risko) ----------
-  const dialogLines = [
-    { who:'knight', name:'Risko', text:'Bienvenidos a Tactic Heroes. Nuestro objetivo es derrotar al ejército rival.' },
-    { who:'archer', name:'Hans',  text:'Selecciona una unidad para ver su rango y luego elige adónde moverse.' },
-    { who:'knight', name:'Risko', text:'Risko ataca adyacente; Hans a una casilla de distancia.' },
-    { who:'archer', name:'Hans',  text:'Todo listo. ¡Entremos en combate!' }
-  ];
+const dialogLines = [
+  {
+    who: 'knight',
+    name: 'Risko',
+    text: 'Ese malnacido de Fortris se ha hecho con el poder. Eres el único guerrero que me queda, Hans.'
+  },
+  {
+    who: 'archer',
+    name: 'Hans',
+    text: '¡Siempre estaré a tu lado, capitana! Pero debemos buscar donde refugiarnos, llevamos varios días huyendo y aún nos pisan los talones esos soldados…'
+  },
+  {
+    who: 'knight',
+    name: 'Risko',
+    text: 'Tenemos que idear un plan para detener a Fortris pero para ello, primero tenemos que sobrevivir. Prepárate porque aquí vienen…'
+  },
+  {
+    who: 'archer',
+    name: 'Hans',
+    text: 'Hace mucho que no teníamos un combate real, más allá de los entrenamientos. Aprovechemos para recordar lo más básico. ¡Vamos!'
+  }
+];
   let dlgIndex = 0, typing=false, typeTimer=null;
 
   // Unidades del jugador (Risko/Hans)
