@@ -289,3 +289,25 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   outline-offset: -2px;
   border-radius: 6px;
 }
+/* ====== Tutorial ====== */
+#tutorialOverlay{
+  position: fixed; inset: 0; z-index: 12500;
+  /* Permitimos clicar el tablero por debajo; solo la caja recibe eventos */
+  pointer-events: none;
+}
+#tutorialOverlay .tutorial-backdrop{
+  position: absolute; inset: 0;
+  /* Muy sutil para no tapar jugabilidad; si quieres que bloquee, sube el alpha */
+  background: rgba(0,0,0,0.12);
+}
+#tutorialOverlay .tutorial-box{
+  pointer-events: auto;           /* la caja sí se puede pulsar */
+  position: absolute; left: 2.5%; right: 2.5%;
+  bottom: 0;
+}
+#tutorialOverlay .dialog-cta{
+  display: none;                  /* por defecto, los pasos se cumplen por acciones del jugador */
+}
+#tutorialOverlay .dialog-cta .small{
+  padding: 8px 13px; font-size: 13px; border-radius: 10px;
+}
