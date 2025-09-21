@@ -1,3 +1,10 @@
+/* ============================================
+   TACTIC HEROES — PRE-TUTORIAL + GUIDED STEPS
+   Fecha: 2025-09-21
+   Contiene: portada, prólogo, diálogo estático,
+             combate base y tutorial guiado en 3 pasos
+============================================ */
+
 /* ===========================
    VARIABLES DE TEMA
 =========================== */
@@ -215,6 +222,18 @@ body {
 .celda.movible { outline: 3px solid rgba(48,140,255,0.55); outline-offset: -1px; }
 .celda.seleccionada{ box-shadow: inset 0 0 0 3px #1b76ff; }
 
+/* Destino del tutorial (marcado amarillo) */
+.celda.tut-target{
+  outline: 3px solid rgba(255, 215, 0, 0.9);
+  outline-offset: -1px;
+  box-shadow: inset 0 0 0 3px rgba(255, 215, 0, 0.5);
+  position: relative;
+}
+.celda.tut-target::after{
+  content:""; position:absolute; inset:2px;
+  border:2px dashed rgba(255,215,0,0.9); border-radius:6px;
+}
+
 /* Sprites del tablero */
 .fichaMiniImg { width: 90%; height: 90%; object-fit: contain; image-rendering: pixelated; position: relative; z-index: 1; pointer-events: none; }
 
@@ -233,6 +252,24 @@ body {
 #acciones { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 button { padding: 7px 10px; font-size: 13px; border-radius: 10px; border: 1px solid #c9d2e3; background: white; color: #111; cursor: pointer; }
 button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
+
+/* ===========================
+   TUTORIAL BAR (no bloquea nada)
+=========================== */
+#tutorialBar{
+  position: fixed;
+  left: 0; right: 0;
+  bottom: 0;
+  z-index: 8500;
+  padding: 10px 14px calc(12px + env(safe-area-inset-bottom)) 14px;
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: .2px;
+  font-size: 14px;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(5,10,14,.85) 28%, rgba(5,10,14,.92) 100%);
+  pointer-events: none; /* <- NO bloquea botones/acciones */
+}
 
 /* FX */
 @keyframes flash-yellow { 0% { background-color: rgba(255,230,0,.75);} 100% {background-color: transparent;} }
