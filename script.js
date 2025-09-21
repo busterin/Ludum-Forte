@@ -1,4 +1,4 @@
-/* build: skirmish+rescue + PNG + static-dialog + names + intro + tutorial (pointer fix v2) */
+/* build: skirmish+rescue + PNG + static-dialog + names + intro + tutorial (pointer fix v3) */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
   const ROWS = 16, COLS = 9;
@@ -208,6 +208,13 @@
   }
 
   // ---------- Render ----------
+  function addCellHandlers(el, f, c){
+    // Usamos pointerdown para móviles/desktop y click como respaldo
+    const handler = () => manejarClick(f,c);
+    el.addEventListener('pointerdown', handler, { passive:true });
+    el.addEventListener('click', handler);
+  }
+
   function dibujarMapa(){
     mapa.querySelectorAll(".celda").forEach(n=>n.remove());
     for (let f=0; f<ROWS; f++){
@@ -256,7 +263,7 @@
           }
         }
 
-        celda.addEventListener("click", ()=>manejarClick(f,c));
+        addCellHandlers(celda, f, c);
         mapa.appendChild(celda);
       }
     }
@@ -290,7 +297,7 @@
         const b=document.createElement("button");
         b.className="primary";
         b.textContent=`ATACAR ${en.nombre}`;
-        b.onclick=()=>atacarUnidadA(unidad,en);
+        b.onclick=()=>{ atacarUnidadA(unidad,en); };
         acciones.appendChild(b);
       });
     }
@@ -373,6 +380,12 @@
 
     if (unidadClick){
       tut_lastSelected = unidadClick;
+
+      // ✅ Fuerza avance inmediato del paso 1 si seleccionas Risko
+      if (tutorialActive && tutorialIndex === 0 && unidadClick.nombre === "Risko"){
+        nextTutorialStep();
+      }
+
       if (unidadClick.acted){
         seleccionado=null; celdasMovibles.clear(); distSel=null; dibujarMapa(); acciones.innerHTML="";
         checkTutorialProgress();
@@ -402,6 +415,7 @@
         renderFicha(seleccionado);
 
         tut_lastMovedUnit = seleccionado;
+        checkTutorialProgress(); // ✅ re-check inmediato tras mover
 
         if (gameMode==="rescue" && seleccionado===aldeano && f===salida.fila && c===salida.col){
           setTurno("fin");
@@ -415,7 +429,6 @@
         if (seleccionado.mp>0){ calcularCeldasMovibles(seleccionado); }
         else { celdasMovibles.clear(); distSel=null; seleccionado.acted=true; }
         dibujarMapa(); botonesAccionesPara(seleccionado);
-        checkTutorialProgress();
         comprobarCambioATurnoEnemigo();
       } else {
         botonesAccionesPara(seleccionado);
@@ -477,6 +490,7 @@
 
     aplicarDanyo(objetivo, u.damage, 'player');
     tut_lastAttackBy = u.nombre;
+    checkTutorialProgress(); // ✅ re-check inmediato tras atacar
     renderFicha(objetivo);
 
     setTimeout(()=>{
@@ -494,12 +508,10 @@
           overlayWin.querySelector("h1").textContent = "NIVEL COMPLETADO";
           overlayWin.style.display = "grid";
         }
-        checkTutorialProgress();
         return;
       }
 
       dibujarMapa();
-      checkTutorialProgress();
       comprobarCambioATurnoEnemigo();
     }, 650);
   }
@@ -563,7 +575,7 @@
     else {
       setTurno("jugador");
       tut_playerTurnResumed = true;
-      checkTutorialProgress();
+      checkTutorialProgress(); // ✅ re-check al volver tu turno
 
       if (gameMode==="skirmish" && enemies.every(e=>!e.vivo)) {
         if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
@@ -706,18 +718,12 @@
     if (tutorialTitleEl) tutorialTitleEl.textContent = "Tutorial";
     if (tutorialTextEl) tutorialTextEl.innerHTML = step.text;
 
-    // Mostrar/ocultar CTA y habilitar o no la caja para recibir clics
     const cta = tutorialOverlay.querySelector(".dialog-cta");
     const box = tutorialOverlay.querySelector(".tutorial-box");
-    if (cta){
-      cta.style.display = step.infoOnly ? "flex" : "none";
-    }
+    if (cta){ cta.style.display = step.infoOnly ? "flex" : "none"; }
     if (box){
-      if (step.infoOnly){
-        box.classList.add("interactive");     // puede pulsarse
-      } else {
-        box.classList.remove("interactive");  // NO bloquea el tablero
-      }
+      if (step.infoOnly){ box.classList.add("interactive"); }
+      else { box.classList.remove("interactive"); }
     }
   }
 
@@ -846,8 +852,10 @@
     fase=1; gameMode="skirmish";
     spawnFase(); dibujarMapa();
 
-    // Re-chequea tutorial en cualquier toque en el tablero (por si acaso)
-    mapa.addEventListener('click', () => { checkTutorialProgress(); }, true);
+    // Re-chequea tutorial en cualquier interacción sobre el mapa
+    const recheck = () => { checkTutorialProgress(); };
+    mapa.addEventListener('pointerdown', recheck, { passive:true, capture:true });
+    mapa.addEventListener('click', recheck, true);
   }
   init();
 })();
