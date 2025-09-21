@@ -1,7 +1,6 @@
 /* ============================================
-   TACTIC HEROES — PRE-TUTORIAL + GUIDED STEPS
+   TACTIC HEROES — INTRO CROSSFADE + TUTORIAL
    Fecha: 2025-09-21
-   Estado: tutorial en 3 pasos (Risko -> Hans -> Pasar turno)
 ============================================ */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
@@ -15,7 +14,7 @@
 
   // Estado
   let turno = "jugador";
-  let fase = 1;           // se usará una vez terminado el tutorial
+  let fase = 1;
   let enemies = [];
   let players = [];
   let seleccionado = null;
@@ -25,9 +24,18 @@
   // Tutorial
   let tutorialActive = false;
   let tutorialStep = 0; // 0: Risko mover+atacar, 1: Hans mover+atacar, 2: pulsar Pasar turno
-  let tutTarget = null; // {fila,col} casilla amarilla a señalar
+  let tutTarget = null; // {fila,col}
   let soldier1 = null;  // enemigo para Risko
   let soldier2 = null;  // enemigo para Hans
+
+  // ---------- PRÓLOGO ----------
+  const introSlides = [
+    { img: "assets/Inicio1.PNG", text: "El reino de Orbis era próspero y pacífico y sus gentes vivían felices." },
+    { img: "assets/Inicio2.PNG", text: "Pero todo cambió cuando el Rey Dariem sufrió un ataque sorpresa que le pilló totalmente desprevenido y sumió al reino en el caos." },
+    { img: "assets/Inicio3.PNG", text: "Un hombre del que poco se sabía, autoproclamado cómo el Rey Fortris, se sentó en el trono y prometió gobernar con mano de hierro. Nadie pudo impedirlo." },
+    { img: "assets/Inicio4.PNG", text: "Una de las pocas supervivientes al ataque fue Risko, Capitana de la Guardia de Dariem, que pudo huir a duras penas con un pensamiento claro en su cabeza: Cobrar venganza." }
+  ];
+  let introIndex = 0;
 
   // DOM
   const mapa = document.getElementById("mapa");
@@ -39,99 +47,44 @@
 
   const portada = document.getElementById("portada");
   const btnJugar = document.getElementById("btnJugar");
-if (introScene){
-  introIndex = 0;
-  introScene.style.display = "block";
-  preloadIntroImages();     // 👈 precarga
-  showIntroSlide(true);     // 👈 primera imagen sin transición para 0 parpadeo
-} 
-  // --- DOM (prólogo) ---
-const introScene = document.getElementById("introScene");
-const introBgA = document.getElementById("introBgA");
-const introBgB = document.getElementById("introBgB");
-const introNameEl = document.getElementById("introName");
-const introTextEl = document.getElementById("introText");
-const btnIntroNext = document.getElementById("btnIntroNext");
 
-// --- Cross-fade entre capas A/B ---
-let introCurrentLayer = 'A';
-function introSetBackground(url, instant=false){
-  const curr = (introCurrentLayer === 'A') ? introBgA : introBgB;
-  const next = (introCurrentLayer === 'A') ? introBgB : introBgA;
+  // --- DOM (prólogo con cross-fade) ---
+  const introScene = document.getElementById("introScene");
+  const introBgA = document.getElementById("introBgA");
+  const introBgB = document.getElementById("introBgB");
+  const introNameEl = document.getElementById("introName");
+  const introTextEl = document.getElementById("introText");
+  const btnIntroNext = document.getElementById("btnIntroNext");
 
-  // Ponemos la siguiente imagen en la capa "next"
-  next.style.backgroundImage = `url('${url}')`;
+  // --- Cross-fade entre capas A/B ---
+  let introCurrentLayer = 'A';
+  function introSetBackground(url, instant=false){
+    const curr = (introCurrentLayer === 'A') ? introBgA : introBgB;
+    const next = (introCurrentLayer === 'A') ? introBgB : introBgA;
 
-  if (instant){
-    // Primera vez: mostramos "next" sin animación y ocultamos "curr"
-    next.classList.add('show');
-    curr.classList.remove('show');
-  } else {
-    // Cross-fade: ocultamos la actual y mostramos la nueva
-    curr.classList.remove('show');
-    // Forzamos reflow para asegurar la transición (opcional, pero ayuda en iOS)
-    void next.offsetWidth;
-    next.classList.add('show');
-  }
-  // Intercambiamos la capa actual
-  introCurrentLayer = (introCurrentLayer === 'A') ? 'B' : 'A';
-}
+    next.style.backgroundImage = `url('${url}')`;
 
-// --- Precarga de las 4 imágenes del prólogo ---
-const introPreloaded = new Set();
-function preloadIntroImages(){
-  introSlides.forEach(s=>{
-    if (introPreloaded.has(s.img)) return;
-    const im = new Image();
-    im.src = s.img;
-    introPreloaded.add(s.img);
-  });
-}
-
-// --- Typewriter del prólogo (igual que tenías) ---
-function typeWriterIntro(text, speed=22){
-  let typing = true;
-  introTextEl.textContent = '';
-  introTextEl.classList.add('type-cursor');
-  let i = 0;
-  function step(){
-    if (i <= text.length){
-      introTextEl.textContent = text.slice(0,i);
-      i++;
-      setTimeout(step, speed);
+    if (instant){
+      next.classList.add('show');
+      curr.classList.remove('show');
     } else {
-      typing = false;
-      introTextEl.classList.remove('type-cursor');
+      curr.classList.remove('show');
+      void next.offsetWidth; // reflow para asegurar transición
+      next.classList.add('show');
     }
+    introCurrentLayer = (introCurrentLayer === 'A') ? 'B' : 'A';
   }
-  step();
-}
 
-// --- Mostrar slide actual (con cross-fade) ---
-function showIntroSlide(instant=false){
-  const slide = introSlides[introIndex];
-  if (!slide) return;
-  introNameEl.textContent = "Prólogo";
-  // Cross-fade (instant en la primera para evitar cualquier parpadeo)
-  introSetBackground(slide.img, instant);
-  typeWriterIntro(slide.text);
-}
-
-// --- Avanzar slide ---
-function advanceIntro(){
-  introIndex++;
-  if (introIndex >= introSlides.length){
-    introScene.style.display = "none";
-    if (dialog){
-      dlgIndex = 0;
-      dialog.style.display = "block";
-      showCurrentDialog();
-    }
-    applyOrientationLock();
-    return;
+  // Precarga de imágenes del prólogo
+  const introPreloaded = new Set();
+  function preloadIntroImages(){
+    introSlides.forEach(s=>{
+      if (introPreloaded.has(s.img)) return;
+      const im = new Image();
+      im.src = s.img;
+      introPreloaded.add(s.img);
+    });
   }
-  showIntroSlide(false);
-}
 
   const dialog = document.getElementById("dialogScene");
   const dialogNameEl = document.getElementById("dialogName");
@@ -142,7 +95,7 @@ function advanceIntro(){
 
   const tutorialBar = document.getElementById("tutorialBar");
 
-  // ---------- Banner turno ----------
+  // ---------- Banner ----------
   function showTurnBanner(text){
     turnBanner.textContent = text;
     turnBanner.style.display = "block";
@@ -183,7 +136,7 @@ function advanceIntro(){
     blocker.style.display = shouldBlock ? "grid" : "none";
     if (portada){ portada.style.pointerEvents = "auto"; portada.style.filter = "none"; }
     const dim = (el)=>{ if(!el) return; el.style.pointerEvents = shouldBlock ? "none" : "auto"; el.style.filter = shouldBlock ? "grayscale(1) blur(1.5px) brightness(.7)" : "none"; };
-    dim(introScene); dim(dialog); dim(mapa);
+    dim(introScene); dim(dialog); dim(mapa); dim(tutorialBar);
   }
   function setupOrientationLock(){
     applyOrientationLock();
@@ -199,7 +152,7 @@ function advanceIntro(){
   const enLineaRecta = (a,b) => (a.fila===b.fila) || (a.col===b.col);
   function getCelda(f,c){ return mapa.querySelector(`.celda[data-key="${f},${c}"]`); }
 
-  // ---------- Spawns estándar (no tutorial) ----------
+  // ---------- Spawns estándar (para cuando acabe el tutorial) ----------
   function spawnFase(){
     enemies = [];
     const count = (fase === 1) ? 3 : (fase === 2) ? 4 : 0;
@@ -230,19 +183,16 @@ function advanceIntro(){
     tutorialActive = true;
     tutorialStep = 0;
 
-    // Posiciones fijas para que el flujo funcione
-    // Risko (10,2) — Hans (10,4)
+    // Posiciones fijas
     players = [
       { ...makeKnight(), fila: 10, col: 2, mp: PLAYER_MAX_MP, acted: false },
       { ...makeArcher(), fila: 10, col: 4, mp: PLAYER_MAX_MP, acted: false },
     ];
-    // Soldado 1 (para Risko): (8,2)
     soldier1 = {
       id: `TUT-S1-${Date.now()}`, nombre: "Soldado 1",
       fila: 8, col: 2, vivo: true, hp: 50, maxHp: 50,
       retrato: "assets/enemy.PNG", damage: ENEMY_BASE_DAMAGE, mp: ENEMY_MAX_MP
     };
-    // Soldado 2 (para Hans): (7,4)
     soldier2 = {
       id: `TUT-S2-${Date.now()}`, nombre: "Soldado 2",
       fila: 7, col: 4, vivo: true, hp: 50, maxHp: 50,
@@ -250,10 +200,9 @@ function advanceIntro(){
     };
     enemies = [ soldier1, soldier2 ];
 
-    // Casilla destino para Risko: (9,2) — adyacente a Soldado 1
+    // Casilla guía para Risko
     tutTarget = { fila: 9, col: 2 };
 
-    // Mensaje
     setTutorialText("Tutorial<br>Pulsa sobre <b>Risko</b> y muévela. Después ataca al soldado.");
 
     dibujarMapa();
@@ -321,14 +270,14 @@ function advanceIntro(){
 
   // ---------- Acciones / HUD ----------
   function endTurn(){
+    // Al pasar turno, marcamos todas como actuadas (o podrías marcar solo la seleccionada y comprobar)
     players.forEach(p=>{ p.acted=true; p.mp=0; });
     seleccionado=null; celdasMovibles.clear(); distSel=null;
     acciones.innerHTML="";
     setTurno("enemigo");
 
-    // Si es el paso 2 del tutorial, al pulsar Pasar turno comenzará el combate
     if (tutorialActive && tutorialStep === 2){
-      // Termina tutorial y continua flujo normal con estos enemigos
+      // Tutorial termina; a partir de aquí combate normal con lo que quede en el tablero
       clearTutorial();
     }
     setTimeout(turnoIAEnemigos, 140);
@@ -443,11 +392,8 @@ function advanceIntro(){
         // Progresión del tutorial al mover
         if (tutorialActive){
           if (tutorialStep === 0 && seleccionado.nombre === "Risko"){
-            // Debe moverse a la casilla objetivo junto al Soldado 1
             if (tutTarget && f === tutTarget.fila && c === tutTarget.col){
-              // Ahora podrá atacar (está a 1 de soldado1)
               setTutorialText("Tutorial<br>Ahora pulsa <b>ATACAR Soldado 1</b> con Risko.");
-              // La diana ya no hace falta, la quitamos para no confundir
               tutTarget = null;
             }
           } else if (tutorialStep === 1 && seleccionado.nombre === "Hans"){
@@ -459,17 +405,17 @@ function advanceIntro(){
         }
 
         if (seleccionado.mp>0){
-  calcularCeldasMovibles(seleccionado);
-} else {
-  // ✅ Sin MP pero TODAVÍA NO hemos actuado: dejamos atacar o pasar turno.
-  celdasMovibles.clear();
-  distSel = null;
-  // NO ponemos acted=true aquí
-}
-dibujarMapa();
-botonesAccionesPara(seleccionado);
-// ✅ No cambiará de turno hasta que todas las unidades hayan ACTUADO de verdad.
-comprobarCambioATurnoEnemigo();
+          calcularCeldasMovibles(seleccionado);
+        } else {
+          // ✅ No marcamos acted aquí; el jugador aún puede Atacar o Pasar turno.
+          celdasMovibles.clear();
+          distSel = null;
+        }
+        dibujarMapa();
+        botonesAccionesPara(seleccionado);
+
+        // ✅ El turno solo cambiará cuando todas las unidades hayan actuado
+        comprobarCambioATurnoEnemigo();
       } else {
         botonesAccionesPara(seleccionado);
       }
@@ -525,13 +471,11 @@ comprobarCambioATurnoEnemigo();
       if(!objetivo.vivo){
         u.kills=(u.kills||0)+1;
 
-        // Avance del tutorial tras eliminar cada soldado
+        // Avance del tutorial
         if (tutorialActive){
           if (tutorialStep === 0 && objetivoRef.id === soldier1.id){
-            // Configura paso de Hans
             tutorialStep = 1;
-            // Casilla para Hans a distancia 2 alineado con Soldado 2: (9,4)
-            tutTarget = { fila: 9, col: 4 };
+            tutTarget = { fila: 9, col: 4 }; // casilla para Hans
             setTutorialText("Tutorial<br>Ahora mueve a <b>Hans</b> a la casilla resaltada y ataca al soldado a distancia.");
           } else if (tutorialStep === 1 && objetivoRef.id === soldier2.id){
             tutorialStep = 2;
@@ -540,13 +484,14 @@ comprobarCambioATurnoEnemigo();
           }
         }
 
-        // Si no hay más enemigos y no estamos en tutorial, procedemos a ganar (flujo clásico)
+        // Si ya no hay enemigos y no estamos en tutorial, flujo clásico
         if (!tutorialActive && enemies.every(e=>!e.vivo)) {
           if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
           else if (fase === 2){ fase = 3; setTurno("fin"); overlayWin.style.display="grid"; }
         }
       }
 
+      // ✅ Aquí sí marcamos que la unidad ya actuó
       u.acted = true; u.mp = 0;
       seleccionado = null; celdasMovibles.clear(); distSel=null;
       acciones.innerHTML="";
@@ -556,13 +501,13 @@ comprobarCambioATurnoEnemigo();
   }
 
   function comprobarCambioATurnoEnemigo(){
-  // ✅ Solo pasamos a turno enemigo cuando TODAS las unidades ya han ACTUADO,
-  // no por quedarse sin MP.
-  if (players.every(p => !p.vivo || p.acted)) {
-    setTurno("enemigo");
-    setTimeout(turnoIAEnemigos, 140);
+    // ✅ Solo pasamos a turno enemigo cuando TODAS las unidades han ACTUADO
+    if (players.every(p => !p.vivo || p.acted)) {
+      setTurno("enemigo");
+      setTimeout(turnoIAEnemigos, 140);
+    }
   }
-}
+
   // ---------- IA Enemiga ----------
   function turnoIAEnemigos(){
     if (turno !== "enemigo") return;
@@ -607,7 +552,6 @@ comprobarCambioATurnoEnemigo();
     if (players.every(p=>!p.vivo)) { setTurno("fin"); }
     else {
       setTurno("jugador");
-      // Si acabó el tutorial, aquí ya sigue el combate normal
       if (!tutorialActive && enemies.every(e=>!e.vivo)) {
         if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
         else if (fase === 2){ fase = 3; overlayWin.style.display="grid"; }
@@ -617,7 +561,6 @@ comprobarCambioATurnoEnemigo();
 
   // ---------- Typewriter (Intro) ----------
   function typeWriterIntro(text, speed=22){
-    let typing = true;
     introTextEl.textContent = '';
     introTextEl.classList.add('type-cursor');
     let i = 0;
@@ -627,21 +570,21 @@ comprobarCambioATurnoEnemigo();
         i++;
         setTimeout(step, speed);
       } else {
-        typing = false;
         introTextEl.classList.remove('type-cursor');
       }
     }
     step();
   }
-  function showIntroSlide(){
+
+  function showIntroSlide(instant=false){
     const slide = introSlides[introIndex];
     if (!slide) return;
     introNameEl.textContent = "Prólogo";
-    introBg.style.backgroundImage = `url('${slide.img}')`;
+    introSetBackground(slide.img, instant);
     typeWriterIntro(slide.text);
   }
+
   function advanceIntro(){
-    const slide = introSlides[introIndex];
     introIndex++;
     if (introIndex >= introSlides.length){
       introScene.style.display = "none";
@@ -653,7 +596,7 @@ comprobarCambioATurnoEnemigo();
       applyOrientationLock();
       return;
     }
-    showIntroSlide();
+    showIntroSlide(false);
   }
 
   // ---------- Diálogos ----------
@@ -710,7 +653,7 @@ comprobarCambioATurnoEnemigo();
     clearSpeaker();
     if (dlgIndex >= dialogLines.length){
       dialog.style.display = "none";
-      // En vez de saltar al combate normal, arrancamos el tutorial guiado
+      // Al terminar el diálogo, arrancamos el tutorial guiado
       startTutorialScenario();
       applyOrientationLock();
       return;
@@ -736,15 +679,6 @@ comprobarCambioATurnoEnemigo();
     damage: 50, range: [2], acted: false, mp: PLAYER_MAX_MP
   });
 
-  // ---------- PRÓLOGO ----------
-  const introSlides = [
-    { img: "assets/Inicio1.PNG", text: "El reino de Orbis era próspero y pacífico y sus gentes vivían felices." },
-    { img: "assets/Inicio2.PNG", text: "Pero todo cambió cuando el Rey Dariem sufrió un ataque sorpresa que le pilló totalmente desprevenido y sumió al reino en el caos." },
-    { img: "assets/Inicio3.PNG", text: "Un hombre del que poco se sabía, autoproclamado cómo el Rey Fortris, se sentó en el trono y prometió gobernar con mano de hierro. Nadie pudo impedirlo." },
-    { img: "assets/Inicio4.PNG", text: "Una de las pocas supervivientes al ataque fue Risko, Capitana de la Guardia de Dariem, que pudo huir a duras penas con un pensamiento claro en su cabeza: Cobrar venganza." }
-  ];
-  let introIndex = 0;
-
   // ---------- Init ----------
   function init(){
     ajustarTamanoTablero();
@@ -753,14 +687,15 @@ comprobarCambioATurnoEnemigo();
       btnContinuar.onclick=()=>{ overlayWin.style.display="none"; location.reload(); };
     }
 
-    // Portada → Intro → Diálogo → Tutorial guiado
+    // Portada → Intro (crossfade) → Diálogo → Tutorial guiado
     if (btnJugar){
       btnJugar.onclick = ()=>{
         if (portada) portada.style.display = "none";
         if (introScene){
           introIndex = 0;
           introScene.style.display = "block";
-          showIntroSlide();
+          preloadIntroImages();     // precarga
+          showIntroSlide(true);     // primera imagen sin transición
         } else if (dialog){
           dlgIndex = 0;
           dialog.style.display = "block";
