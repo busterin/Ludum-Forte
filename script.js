@@ -1,4 +1,4 @@
-/* build: skirmish+rescue + PNG + static-dialog */
+/* build: skirmish+rescue + PNG + static-dialog + names */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
   const ROWS = 16, COLS = 9;
@@ -27,30 +27,31 @@
   let salida = { fila: 0, col: 4 };
 
   // ---------- Diálogos intro ----------
-const dialogLines = [
-  { who:'knight', name:'Risko', text:'Os doy la bienvenida a Tactic Heroes. Nuestro objetivo es derrotar al ejército rival.' },
-  { who:'archer', name:'Hans',  text:'Selecciona un personaje para ver su rango de movimiento y después elegir dónde colocarlo.' },
-  { who:'knight', name:'Risko', text:'Risko ataca si está adyacente al enemigo y Hans a una casilla de distancia.' },
-  { who:'archer', name:'Hans',  text:'Todo listo. ¡Entremos en combate!' }
-];
+  const dialogLines = [
+    { who:'knight', name:'Risko', text:'Bienvenidos a Tactic Heroes. Nuestro objetivo es derrotar al ejército rival.' },
+    { who:'archer', name:'Hans',  text:'Selecciona una unidad para ver su rango y luego elige adónde moverse.' },
+    { who:'knight', name:'Risko', text:'Risko ataca adyacente; Hans a una casilla de distancia.' },
+    { who:'archer', name:'Hans',  text:'Todo listo. ¡Entremos en combate!' }
+  ];
+  let dlgIndex = 0, typing=false, typeTimer=null;
 
-// ---------- Unidades del jugador ----------
-const makeKnight = () => ({
-  id: "K", tipo: "guerrero",
-  fila: Math.floor(ROWS*0.6), col: Math.floor(COLS*0.25),
-  vivo: true, nombre: "Risko",
-  hp: 100, maxHp: 100,
-  retrato: "assets/player.PNG", nivel: 1, kills: 0,
-  damage: 50, range: [1], acted: false, mp: PLAYER_MAX_MP
-});
-const makeArcher = () => ({
-  id: "A", tipo: "arquero",
-  fila: Math.floor(ROWS*0.65), col: Math.floor(COLS*0.25),
-  vivo: true, nombre: "Hans",
-  hp: 80, maxHp: 80,
-  retrato: "assets/archer.PNG", nivel: 1, kills: 0,
-  damage: 50, range: [2], acted: false, mp: PLAYER_MAX_MP
-});
+  // Unidades del jugador (Risko/Hans)
+  const makeKnight = () => ({
+    id: "K", tipo: "guerrero",
+    fila: Math.floor(ROWS*0.6), col: Math.floor(COLS*0.25),
+    vivo: true, nombre: "Risko",
+    hp: 100, maxHp: 100,
+    retrato: "assets/player.PNG", nivel: 1, kills: 0,
+    damage: 50, range: [1], acted: false, mp: PLAYER_MAX_MP
+  });
+  const makeArcher = () => ({
+    id: "A", tipo: "arquero",
+    fila: Math.floor(ROWS*0.65), col: Math.floor(COLS*0.25),
+    vivo: true, nombre: "Hans",
+    hp: 80, maxHp: 80,
+    retrato: "assets/archer.PNG", nivel: 1, kills: 0,
+    damage: 50, range: [2], acted: false, mp: PLAYER_MAX_MP
+  });
   const makeVillager = () => ({
     id: "V", tipo: "aldeano",
     fila: Math.floor(ROWS*0.75), col: Math.floor(COLS*0.18),
@@ -76,8 +77,8 @@ const makeArcher = () => ({
   const dialogNameEl = document.getElementById("dialogName");
   const dialogTextEl = document.getElementById("dialogText");
   const btnDialogNext = document.getElementById("btnDialogNext");
-  const charKnight = document.getElementById("charKnight");   // GuerreraDialogo.PNG (izq)
-  const charArcher = document.getElementById("charArcher");   // ArqueroDialogo.PNG  (der)
+  const charKnight = document.getElementById("charKnight");   // Risko (derecha)
+  const charArcher = document.getElementById("charArcher");   // Hans (izquierda)
 
   // ---------- Banner turno ----------
   function showTurnBanner(text){
@@ -136,31 +137,32 @@ const makeArcher = () => ({
   const enLineaRecta = (a,b) => (a.fila===b.fila) || (a.col===b.col);
   function getCelda(f,c){ return mapa.querySelector(`.celda[data-key="${f},${c}"]`); }
 
-  // ---------- Oleadas ----------
-function spawnFase(){
-  enemies = [];
-  const count = (fase === 1) ? 3 : (fase === 2) ? 4 : 0;
-  if (count === 0) return;
-  const ocupadas = new Set(players.filter(p=>p.vivo).map(p=>key(p.fila,p.col)));
-  for (let i=0; i<count; i++){
-    let f,c;
-    do {
-      f = Math.floor(Math.random()*(ROWS - NON_PLAYABLE_BOTTOM_ROWS));
-      c = Math.floor(Math.random()*COLS);
-    } while (ocupadas.has(key(f,c)));
-    ocupadas.add(key(f,c));
-    enemies.push({
-      id:`E${Date.now()}-${i}`,
-      nombre:`Soldado ${i+1 + (fase===2?3:0)}`,
-      fila:f, col:c, vivo:true,
-      hp:50, maxHp:50,
-      retrato:"assets/enemy.PNG",
-      damage:ENEMY_BASE_DAMAGE,
-      mp: ENEMY_MAX_MP
-    });
+  // ---------- Spawns (nivel 1: skirmish) ----------
+  function spawnFase(){
+    if (gameMode === "rescue") return;
+    enemies = [];
+    const count = (fase === 1) ? 3 : (fase === 2) ? 4 : 0;
+    if (count === 0) return;
+    const ocupadas = new Set(players.filter(p=>p.vivo).map(p=>key(p.fila,p.col)));
+    for (let i=0; i<count; i++){
+      let f,c;
+      do {
+        f = Math.floor(Math.random()*(ROWS - NON_PLAYABLE_BOTTOM_ROWS));
+        c = Math.floor(Math.random()*COLS);
+      } while (ocupadas.has(key(f,c)));
+      ocupadas.add(key(f,c));
+      enemies.push({
+        id:`E${Date.now()}-${i}`,
+        nombre:`Soldado ${i+1 + (fase===2?3:0)}`,
+        fila:f, col:c, vivo:true,
+        hp:50, maxHp:50,
+        retrato:"assets/enemy.PNG",
+        damage:ENEMY_BASE_DAMAGE,
+        mp: ENEMY_MAX_MP
+      });
+    }
+    if (turno==="jugador") players.forEach(p=>{ p.acted=false; p.mp=PLAYER_MAX_MP; });
   }
-  if (turno==="jugador") players.forEach(p=>{ p.acted=false; p.mp=PLAYER_MAX_MP; });
-}
 
   // ---------- RESCATE ----------
   function randomSalida(){ salida.fila = 0; salida.col = Math.floor(Math.random()*COLS); }
@@ -178,7 +180,7 @@ function spawnFase(){
       ocupadas.add(key(f,c));
       enemies.push({
         id:`E${Date.now()}-R${i}`,
-        nombre:`Bandido ${i+1}`,
+        nombre:`Soldado ${i+1}`,
         fila:f, col:c, vivo:true,
         hp:50, maxHp:50,
         retrato:"assets/enemy.PNG",
@@ -209,15 +211,17 @@ function spawnFase(){
         if (seleccionado && celdasMovibles.has(key(f,c))) celda.classList.add("movible");
         if (seleccionado && seleccionado.fila===f && seleccionado.col===c) celda.classList.add("seleccionada");
 
+        // Jugadores
         for (const p of players){
           if (p.vivo && p.fila===f && p.col===c){
             const img = document.createElement("img");
-            img.src = (p.tipo==="caballero") ? "assets/player.PNG" : "assets/archer.PNG";
+            img.src = (p.tipo==="guerrero") ? "assets/player.PNG" : "assets/archer.PNG";
             img.alt = p.nombre;
             img.className = "fichaMiniImg";
             celda.appendChild(img);
           }
         }
+        // Aldeano
         if (gameMode==="rescue" && aldeano?.vivo && aldeano.fila===f && aldeano.col===c){
           const img = document.createElement("img");
           img.src = aldeano.retrato || "assets/archer.PNG";
@@ -225,6 +229,7 @@ function spawnFase(){
           img.className = "fichaMiniImg villager";
           celda.appendChild(img);
         }
+        // Enemigos
         for (const e of enemies){
           if (e.vivo && e.fila===f && e.col===c){
             const img = document.createElement("img");
@@ -449,7 +454,7 @@ function spawnFase(){
       seleccionado = null; celdasMovibles.clear(); distSel=null;
       acciones.innerHTML="";
 
-      // Si termina oleada/nivel durante TU turno
+      // Fin de oleada/nivel durante TU turno
       if (gameMode==="skirmish" && enemies.every(e=>!e.vivo)) {
         if (fase === 1){
           fase = 2; spawnFase(); dibujarMapa();
