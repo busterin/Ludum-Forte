@@ -156,23 +156,28 @@ body {
 }
 
 /* ===========================
-   TUTORIAL (fix pointer-events)
+   TUTORIAL (no bloquear tablero)
 =========================== */
 #tutorialOverlay{
   position: fixed; inset: 0; z-index: 12500;
-  pointer-events: none;              /* el overlay NO intercepta */
+  pointer-events: none;            /* overlay no intercepta */
 }
 #tutorialOverlay .tutorial-backdrop{
   position: absolute; inset: 0;
   background: rgba(0,0,0,0.12);
-  pointer-events: none;              /* el fondo TAMPOCO intercepta */
+  pointer-events: none;            /* fondo no intercepta */
 }
+/* Por defecto, la caja NO intercepta (pasos interactivos) */
 #tutorialOverlay .tutorial-box{
   position: absolute; left: 2.5%; right: 2.5%;
   bottom: 0;
-  pointer-events: auto;              /* solo la caja recibe clicks */
+  pointer-events: none;            /* <- clave del fix */
 }
-#tutorialOverlay .dialog-cta{ display: none; } /* se mostrará solo en pasos informativos */
+/* Cuando haya pasos informativos, el JS añade .interactive para permitir pulsar "Continuar" */
+#tutorialOverlay .tutorial-box.interactive{
+  pointer-events: auto;
+}
+#tutorialOverlay .dialog-cta{ display: none; } /* se activará en pasos informativos */
 
 /* ===========================
    OVERLAYS
