@@ -156,22 +156,23 @@ body {
 }
 
 /* ===========================
-   TUTORIAL
+   TUTORIAL (fix pointer-events)
 =========================== */
 #tutorialOverlay{
   position: fixed; inset: 0; z-index: 12500;
-  pointer-events: none; /* El tablero sigue siendo clicable; solo la caja recibe eventos */
+  pointer-events: none;              /* el overlay NO intercepta */
 }
 #tutorialOverlay .tutorial-backdrop{
   position: absolute; inset: 0;
-  background: rgba(0,0,0,0.12); /* muy sutil */
+  background: rgba(0,0,0,0.12);
+  pointer-events: none;              /* el fondo TAMPOCO intercepta */
 }
 #tutorialOverlay .tutorial-box{
-  pointer-events: auto;
   position: absolute; left: 2.5%; right: 2.5%;
   bottom: 0;
+  pointer-events: auto;              /* solo la caja recibe clicks */
 }
-#tutorialOverlay .dialog-cta{ display: none; } /* los pasos avanzan por acciones del jugador */
+#tutorialOverlay .dialog-cta{ display: none; } /* se mostrará solo en pasos informativos */
 
 /* ===========================
    OVERLAYS
