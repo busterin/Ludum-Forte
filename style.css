@@ -77,12 +77,20 @@ body {
 /* ===========================
    INTRO (PRÓLOGO)
 =========================== */
-#introScene{ position: fixed; inset: 0; z-index: 12000; display: block; }
-#introScene .intro-bg{
+#introScene{
+  position: fixed; inset: 0; z-index: 12000; display: block;
+  /* 👇 Fondo opaco para que nunca se vea el tablero entre cambios */
+  background: #000;
+}
+#introScene .intro-bg.layer{
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
-  filter: brightness(.98) saturate(1.02);
+  /* 👇 Cross-fade suave entre capas */
+  opacity: 0;
+  transition: opacity .28s ease;
 }
+/* La capa visible tendrá la clase .show */
+#introScene .intro-bg.layer.show{ opacity: 1; }
 
 /* ===========================
    ESCENA DE DIÁLOGO
