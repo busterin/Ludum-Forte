@@ -1,4 +1,8 @@
-/* build: pre-tutorial restore (PNG + intro + static dialog + skirmish-only) */
+/* ============================================
+   TACTIC HEROES — PRE-TUTORIAL + GUIDED STEPS
+   Fecha: 2025-09-21
+   Estado: tutorial en 3 pasos (Risko -> Hans -> Pasar turno)
+============================================ */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
   const ROWS = 16, COLS = 9;
@@ -11,31 +15,19 @@
 
   // Estado
   let turno = "jugador";
-  let fase = 1;           // 1 -> 2 -> fin
+  let fase = 1;           // se usará una vez terminado el tutorial
   let enemies = [];
   let players = [];
   let seleccionado = null;
   let celdasMovibles = new Set();
   let distSel = null;
 
-  // ---------- PRÓLOGO ----------
-  const introSlides = [
-    { img: "assets/Inicio1.PNG", text: "El reino de Orbis era próspero y pacífico y sus gentes vivían felices." },
-    { img: "assets/Inicio2.PNG", text: "Pero todo cambió cuando el Rey Dariem sufrió un ataque sorpresa que le pilló totalmente desprevenido y sumió al reino en el caos." },
-    { img: "assets/Inicio3.PNG", text: "Un hombre del que poco se sabía, autoproclamado cómo el Rey Fortris, se sentó en el trono y prometió gobernar con mano de hierro. Nadie pudo impedirlo." },
-    { img: "assets/Inicio4.PNG", text: "Una de las pocas supervivientes al ataque fue Risko, Capitana de la Guardia de Dariem, que pudo huir a duras penas con un pensamiento claro en su cabeza: Cobrar venganza." }
-  ];
-  let introIndex = 0;
-  let introTyping = false, introTimer = null;
-
-  // ---------- Diálogos (Hans & Risko) ----------
-  const dialogLines = [
-    { who:'knight', name:'Risko', text:'Ese malnacido de Fortris se ha hecho con el poder. Eres el único guerrero que me queda, Hans.' },
-    { who:'archer', name:'Hans',  text:'¡Siempre estaré a tu lado, capitana! Pero debemos buscar donde refugiarnos, llevamos varios días huyendo y aún nos pisan los talones esos soldados…' },
-    { who:'knight', name:'Risko', text:'Tenemos que idear un plan para detener a Fortris pero para ello, primero tenemos que sobrevivir. Prepárate porque aquí vienen…' },
-    { who:'archer', name:'Hans',  text:'Hace mucho que no teníamos un combate real, más allá de los entrenamientos. Aprovechemos para recordar lo más básico. ¡Vamos!' }
-  ];
-  let dlgIndex = 0, typing=false, typeTimer=null;
+  // Tutorial
+  let tutorialActive = false;
+  let tutorialStep = 0; // 0: Risko mover+atacar, 1: Hans mover+atacar, 2: pulsar Pasar turno
+  let tutTarget = null; // {fila,col} casilla amarilla a señalar
+  let soldier1 = null;  // enemigo para Risko
+  let soldier2 = null;  // enemigo para Hans
 
   // DOM
   const mapa = document.getElementById("mapa");
@@ -60,6 +52,8 @@
   const btnDialogNext = document.getElementById("btnDialogNext");
   const charKnight = document.getElementById("charKnight");   // Risko (derecha)
   const charArcher = document.getElementById("charArcher");   // Hans (izquierda)
+
+  const tutorialBar = document.getElementById("tutorialBar");
 
   // ---------- Banner turno ----------
   function showTurnBanner(text){
@@ -118,7 +112,7 @@
   const enLineaRecta = (a,b) => (a.fila===b.fila) || (a.col===b.col);
   function getCelda(f,c){ return mapa.querySelector(`.celda[data-key="${f},${c}"]`); }
 
-  // ---------- Spawns (oleadas) ----------
+  // ---------- Spawns estándar (no tutorial) ----------
   function spawnFase(){
     enemies = [];
     const count = (fase === 1) ? 3 : (fase === 2) ? 4 : 0;
@@ -144,6 +138,54 @@
     if (turno==="jugador") players.forEach(p=>{ p.acted=false; p.mp=PLAYER_MAX_MP; });
   }
 
+  // ---------- Tutorial: escenario guiado ----------
+  function startTutorialScenario(){
+    tutorialActive = true;
+    tutorialStep = 0;
+
+    // Posiciones fijas para que el flujo funcione
+    // Risko (10,2) — Hans (10,4)
+    players = [
+      { ...makeKnight(), fila: 10, col: 2, mp: PLAYER_MAX_MP, acted: false },
+      { ...makeArcher(), fila: 10, col: 4, mp: PLAYER_MAX_MP, acted: false },
+    ];
+    // Soldado 1 (para Risko): (8,2)
+    soldier1 = {
+      id: `TUT-S1-${Date.now()}`, nombre: "Soldado 1",
+      fila: 8, col: 2, vivo: true, hp: 50, maxHp: 50,
+      retrato: "assets/enemy.PNG", damage: ENEMY_BASE_DAMAGE, mp: ENEMY_MAX_MP
+    };
+    // Soldado 2 (para Hans): (7,4)
+    soldier2 = {
+      id: `TUT-S2-${Date.now()}`, nombre: "Soldado 2",
+      fila: 7, col: 4, vivo: true, hp: 50, maxHp: 50,
+      retrato: "assets/enemy.PNG", damage: ENEMY_BASE_DAMAGE, mp: ENEMY_MAX_MP
+    };
+    enemies = [ soldier1, soldier2 ];
+
+    // Casilla destino para Risko: (9,2) — adyacente a Soldado 1
+    tutTarget = { fila: 9, col: 2 };
+
+    // Mensaje
+    setTutorialText("Tutorial<br>Pulsa sobre <b>Risko</b> y muévela. Después ataca al soldado.");
+
+    dibujarMapa();
+    mapa.style.display = "grid";
+    setTurno("jugador");
+  }
+
+  function setTutorialText(html){
+    if (!tutorialBar) return;
+    tutorialBar.style.display = "block";
+    tutorialBar.innerHTML = html;
+  }
+  function clearTutorial(){
+    tutorialActive = false;
+    tutorialStep = -1;
+    tutTarget = null;
+    if (tutorialBar){ tutorialBar.style.display = "none"; tutorialBar.textContent = ""; }
+  }
+
   // ---------- Render ----------
   function dibujarMapa(){
     mapa.querySelectorAll(".celda").forEach(n=>n.remove());
@@ -154,6 +196,12 @@
         celda.dataset.key = key(f,c);
 
         if (noJugable(f)) celda.style.pointerEvents = "none";
+
+        // Marca de destino del tutorial
+        if (tutorialActive && tutTarget && tutTarget.fila === f && tutTarget.col === c){
+          celda.classList.add("tut-target");
+        }
+
         if (seleccionado && celdasMovibles.has(key(f,c))) celda.classList.add("movible");
         if (seleccionado && seleccionado.fila===f && seleccionado.col===c) celda.classList.add("seleccionada");
 
@@ -190,6 +238,12 @@
     seleccionado=null; celdasMovibles.clear(); distSel=null;
     acciones.innerHTML="";
     setTurno("enemigo");
+
+    // Si es el paso 2 del tutorial, al pulsar Pasar turno comenzará el combate
+    if (tutorialActive && tutorialStep === 2){
+      // Termina tutorial y continua flujo normal con estos enemigos
+      clearTutorial();
+    }
     setTimeout(turnoIAEnemigos, 140);
   }
 
@@ -298,6 +352,25 @@
         seleccionado.fila=f; seleccionado.col=c;
         seleccionado.mp = Math.max(0, seleccionado.mp - coste);
         renderFicha(seleccionado);
+
+        // Progresión del tutorial al mover
+        if (tutorialActive){
+          if (tutorialStep === 0 && seleccionado.nombre === "Risko"){
+            // Debe moverse a la casilla objetivo junto al Soldado 1
+            if (tutTarget && f === tutTarget.fila && c === tutTarget.col){
+              // Ahora podrá atacar (está a 1 de soldado1)
+              setTutorialText("Tutorial<br>Ahora pulsa <b>ATACAR Soldado 1</b> con Risko.");
+              // La diana ya no hace falta, la quitamos para no confundir
+              tutTarget = null;
+            }
+          } else if (tutorialStep === 1 && seleccionado.nombre === "Hans"){
+            if (tutTarget && f === tutTarget.fila && c === tutTarget.col){
+              setTutorialText("Tutorial<br>Ahora pulsa <b>ATACAR Soldado 2</b> con Hans.");
+              tutTarget = null;
+            }
+          }
+        }
+
         if (seleccionado.mp>0){ calcularCeldasMovibles(seleccionado); }
         else { celdasMovibles.clear(); distSel=null; seleccionado.acted=true; }
         dibujarMapa(); botonesAccionesPara(seleccionado);
@@ -349,16 +422,36 @@
   function atacarUnidadA(u, objetivoRef){
     const objetivo = isAliveEnemyById(objetivoRef.id);
     if (!objetivo || !stillInRange(u, objetivo)) { botonesAccionesPara(u); return; }
+
     aplicarDanyo(objetivo, u.damage, 'player');
     renderFicha(objetivo);
+
     setTimeout(()=>{
       if(!objetivo.vivo){
         u.kills=(u.kills||0)+1;
-        if (enemies.every(e=>!e.vivo)) {
+
+        // Avance del tutorial tras eliminar cada soldado
+        if (tutorialActive){
+          if (tutorialStep === 0 && objetivoRef.id === soldier1.id){
+            // Configura paso de Hans
+            tutorialStep = 1;
+            // Casilla para Hans a distancia 2 alineado con Soldado 2: (9,4)
+            tutTarget = { fila: 9, col: 4 };
+            setTutorialText("Tutorial<br>Ahora mueve a <b>Hans</b> a la casilla resaltada y ataca al soldado a distancia.");
+          } else if (tutorialStep === 1 && objetivoRef.id === soldier2.id){
+            tutorialStep = 2;
+            tutTarget = null;
+            setTutorialText("Tutorial<br>Pulsa el botón <b>Pasar turno</b> y comenzará el combate.");
+          }
+        }
+
+        // Si no hay más enemigos y no estamos en tutorial, procedemos a ganar (flujo clásico)
+        if (!tutorialActive && enemies.every(e=>!e.vivo)) {
           if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
           else if (fase === 2){ fase = 3; setTurno("fin"); overlayWin.style.display="grid"; }
         }
       }
+
       u.acted = true; u.mp = 0;
       seleccionado = null; celdasMovibles.clear(); distSel=null;
       acciones.innerHTML="";
@@ -417,7 +510,8 @@
     if (players.every(p=>!p.vivo)) { setTurno("fin"); }
     else {
       setTurno("jugador");
-      if (enemies.every(e=>!e.vivo)) {
+      // Si acabó el tutorial, aquí ya sigue el combate normal
+      if (!tutorialActive && enemies.every(e=>!e.vivo)) {
         if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
         else if (fase === 2){ fase = 3; overlayWin.style.display="grid"; }
       }
@@ -426,7 +520,7 @@
 
   // ---------- Typewriter (Intro) ----------
   function typeWriterIntro(text, speed=22){
-    introTyping = true;
+    let typing = true;
     introTextEl.textContent = '';
     introTextEl.classList.add('type-cursor');
     let i = 0;
@@ -434,34 +528,23 @@
       if (i <= text.length){
         introTextEl.textContent = text.slice(0,i);
         i++;
-        introTimer = setTimeout(step, speed);
+        setTimeout(step, speed);
       } else {
-        introTyping = false;
+        typing = false;
         introTextEl.classList.remove('type-cursor');
       }
     }
     step();
   }
-
   function showIntroSlide(){
     const slide = introSlides[introIndex];
     if (!slide) return;
     introNameEl.textContent = "Prólogo";
     introBg.style.backgroundImage = `url('${slide.img}')`;
-    clearTimeout(introTimer);
     typeWriterIntro(slide.text);
   }
-
   function advanceIntro(){
-    if (!introScene) return;
     const slide = introSlides[introIndex];
-    if (introTyping){
-      clearTimeout(introTimer);
-      introTextEl.textContent = slide.text;
-      introTyping = false;
-      introTextEl.classList.remove('type-cursor');
-      return;
-    }
     introIndex++;
     if (introIndex >= introSlides.length){
       introScene.style.display = "none";
@@ -476,7 +559,14 @@
     showIntroSlide();
   }
 
-  // ---------- Diálogo (resaltado sin animaciones) ----------
+  // ---------- Diálogos ----------
+  const dialogLines = [
+    { who:'knight', name:'Risko', text:'Ese malnacido de Fortris se ha hecho con el poder. Eres el único guerrero que me queda, Hans.' },
+    { who:'archer', name:'Hans',  text:'¡Siempre estaré a tu lado, capitana! Pero debemos buscar donde refugiarnos, llevamos varios días huyendo y aún nos pisan los talones esos soldados…' },
+    { who:'knight', name:'Risko', text:'Tenemos que idear un plan para detener a Fortris pero para ello, primero tenemos que sobrevivir. Prepárate porque aquí vienen…' },
+    { who:'archer', name:'Hans',  text:'Hace mucho que no teníamos un combate real, más allá de los entrenamientos. Aprovechemos para recordar lo más básico. ¡Vamos!' }
+  ];
+  let dlgIndex = 0, typing=false, typeTimer=null;
   function clearSpeaker(){ [charKnight, charArcher].forEach(el => el && el.classList.remove('speaking')); }
   function setActiveSpeaker(){
     const line = dialogLines[dlgIndex];
@@ -511,7 +601,6 @@
     typeWriter(line.text);
   }
   function advanceDialog(){
-    if (!dialog) return;
     const line = dialogLines[dlgIndex];
     if (typing){
       clearTimeout(typeTimer);
@@ -524,8 +613,8 @@
     clearSpeaker();
     if (dlgIndex >= dialogLines.length){
       dialog.style.display = "none";
-      mapa.style.display = "grid";
-      setTurno("jugador");
+      // En vez de saltar al combate normal, arrancamos el tutorial guiado
+      startTutorialScenario();
       applyOrientationLock();
       return;
     }
@@ -550,16 +639,24 @@
     damage: 50, range: [2], acted: false, mp: PLAYER_MAX_MP
   });
 
+  // ---------- PRÓLOGO ----------
+  const introSlides = [
+    { img: "assets/Inicio1.PNG", text: "El reino de Orbis era próspero y pacífico y sus gentes vivían felices." },
+    { img: "assets/Inicio2.PNG", text: "Pero todo cambió cuando el Rey Dariem sufrió un ataque sorpresa que le pilló totalmente desprevenido y sumió al reino en el caos." },
+    { img: "assets/Inicio3.PNG", text: "Un hombre del que poco se sabía, autoproclamado cómo el Rey Fortris, se sentó en el trono y prometió gobernar con mano de hierro. Nadie pudo impedirlo." },
+    { img: "assets/Inicio4.PNG", text: "Una de las pocas supervivientes al ataque fue Risko, Capitana de la Guardia de Dariem, que pudo huir a duras penas con un pensamiento claro en su cabeza: Cobrar venganza." }
+  ];
+  let introIndex = 0;
+
   // ---------- Init ----------
   function init(){
-    players=[makeKnight(),makeArcher()];
-    ajustarTamanoTablero(); spawnFase(); dibujarMapa();
+    ajustarTamanoTablero();
 
     if (btnContinuar){
       btnContinuar.onclick=()=>{ overlayWin.style.display="none"; location.reload(); };
     }
 
-    // Portada → Intro → Diálogo → Juego
+    // Portada → Intro → Diálogo → Tutorial guiado
     if (btnJugar){
       btnJugar.onclick = ()=>{
         if (portada) portada.style.display = "none";
@@ -572,15 +669,13 @@
           dialog.style.display = "block";
           showCurrentDialog();
         } else {
-          mapa.style.display = "grid";
-          setTurno("jugador");
+          startTutorialScenario();
         }
         applyOrientationLock();
       };
     } else {
       // fallback si no hubiera portada
-      mapa.style.display = "grid";
-      setTurno("jugador");
+      startTutorialScenario();
     }
 
     if (btnIntroNext) btnIntroNext.onclick = advanceIntro;
