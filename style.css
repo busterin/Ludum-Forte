@@ -338,3 +338,11 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
 #dialogScene .dialog-box::before{
   content: none !important;
 }
+/* Marco sencillo y claro para la caja de diálogo */
+#dialogScene .dialog-box {
+  border: 2px solid rgba(255,255,255,0.35); /* marco más visible */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
