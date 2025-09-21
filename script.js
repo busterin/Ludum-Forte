@@ -1,4 +1,4 @@
-/* build: skirmish+rescue + PNG + static-dialog + names */
+/* build: skirmish+rescue + PNG + static-dialog + names + intro */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
   const ROWS = 16, COLS = 9;
@@ -26,7 +26,29 @@
   let aldeano = null;
   let salida = { fila: 0, col: 4 };
 
-  // ---------- Diálogos intro ----------
+  // ---------- PRÓLOGO (intro de 4 slides) ----------
+  const introSlides = [
+    {
+      img: "assets/Inicio1.PNG",
+      text: "El reino de Orbis era próspero y pacífico y sus gentes vivían felices."
+    },
+    {
+      img: "assets/Inicio2.PNG",
+      text: "Pero todo cambió cuando el Rey Dariem sufrió un ataque sorpresa que le pilló totalmente desprevenido y sumió al reino en el caos."
+    },
+    {
+      img: "assets/Inicio3.PNG",
+      text: "Un hombre del que poco se sabía, autoproclamado cómo el Rey Fortris, se sentó en el trono y prometió gobernar con mano de hierro. Nadie pudo impedirlo."
+    },
+    {
+      img: "assets/Inicio4.PNG",
+      text: "Una de las pocas supervivientes al ataque fue Risko, Capitana de la Guardia de Dariem, que pudo huir a duras penas con un pensamiento claro en su cabeza: Cobrar venganza."
+    }
+  ];
+  let introIndex = 0;
+  let introTyping = false, introTimer = null;
+
+  // ---------- Diálogos intro (Hans & Risko) ----------
   const dialogLines = [
     { who:'knight', name:'Risko', text:'Bienvenidos a Tactic Heroes. Nuestro objetivo es derrotar al ejército rival.' },
     { who:'archer', name:'Hans',  text:'Selecciona una unidad para ver su rango y luego elige adónde moverse.' },
@@ -73,6 +95,15 @@
 
   const portada = document.getElementById("portada");
   const btnJugar = document.getElementById("btnJugar");
+
+  // Intro (prólogo)
+  const introScene = document.getElementById("introScene");
+  const introBg = document.getElementById("introBg");
+  const introNameEl = document.getElementById("introName");
+  const introTextEl = document.getElementById("introText");
+  const btnIntroNext = document.getElementById("btnIntroNext");
+
+  // Diálogo Hans & Risko
   const dialog = document.getElementById("dialogScene");
   const dialogNameEl = document.getElementById("dialogName");
   const dialogTextEl = document.getElementById("dialogText");
@@ -121,7 +152,7 @@
     blocker.style.display = shouldBlock ? "grid" : "none";
     if (portada){ portada.style.pointerEvents = "auto"; portada.style.filter = "none"; }
     const dim = (el)=>{ if(!el) return; el.style.pointerEvents = shouldBlock ? "none" : "auto"; el.style.filter = shouldBlock ? "grayscale(1) blur(1.5px) brightness(.7)" : "none"; };
-    dim(dialog); dim(mapa);
+    dim(introScene); dim(dialog); dim(mapa);
   }
   function setupOrientationLock(){
     applyOrientationLock();
@@ -540,10 +571,61 @@
     }
   }
 
-  // ---------- Diálogo: hablante resaltado (sin animaciones) ----------
-  function clearSpeaker(){
-    [charKnight, charArcher].forEach(el => el && el.classList.remove('speaking'));
+  // ---------- Typewriter (Intro) ----------
+  function typeWriterIntro(text, speed=22){
+    introTyping = true;
+    introTextEl.textContent = '';
+    introTextEl.classList.add('type-cursor');
+    let i = 0;
+    function step(){
+      if (i <= text.length){
+        introTextEl.textContent = text.slice(0,i);
+        i++;
+        introTimer = setTimeout(step, speed);
+      } else {
+        introTyping = false;
+        introTextEl.classList.remove('type-cursor');
+      }
+    }
+    step();
   }
+
+  function showIntroSlide(){
+    const slide = introSlides[introIndex];
+    if (!slide) return;
+    introNameEl.textContent = "Prólogo";
+    introBg.style.backgroundImage = `url('${slide.img}')`;
+    clearTimeout(introTimer);
+    typeWriterIntro(slide.text);
+  }
+
+  function advanceIntro(){
+    if (!introScene) return;
+    const slide = introSlides[introIndex];
+    if (introTyping){
+      clearTimeout(introTimer);
+      introTextEl.textContent = slide.text;
+      introTyping = false;
+      introTextEl.classList.remove('type-cursor');
+      return;
+    }
+    introIndex++;
+    if (introIndex >= introSlides.length){
+      introScene.style.display = "none";
+      // Pasamos al diálogo Hans & Risko
+      if (dialog){
+        dlgIndex = 0;
+        dialog.style.display = "block";
+        showCurrentDialog();
+      }
+      applyOrientationLock();
+      return;
+    }
+    showIntroSlide();
+  }
+
+  // ---------- Typewriter (Diálogo Hans & Risko) ----------
+  function clearSpeaker(){ [charKnight, charArcher].forEach(el => el && el.classList.remove('speaking')); }
   function setActiveSpeaker(){
     const line = dialogLines[dlgIndex];
     if (!line) return;
@@ -552,7 +634,6 @@
     else { charArcher?.classList.add('speaking'); }
     if (dialogNameEl) dialogNameEl.textContent = line.name;
   }
-
   function typeWriter(text, speed=22){
     typing = true;
     dialogTextEl.textContent = '';
@@ -570,7 +651,6 @@
     }
     step();
   }
-
   function showCurrentDialog(){
     const line = dialogLines[dlgIndex];
     if (!line) return;
@@ -578,7 +658,6 @@
     clearTimeout(typeTimer);
     typeWriter(line.text);
   }
-
   function advanceDialog(){
     if (!dialog) return;
     const line = dialogLines[dlgIndex];
@@ -622,8 +701,7 @@
     if (btnContinuar){
       btnContinuar.onclick = ()=>{
         if (nextMode === "rescue"){
-          startRescueLevel();
-          nextMode = null;
+          startRescueLevel(); nextMode = null;
         } else if (nextMode === "restart"){
           location.reload();
         } else {
@@ -637,11 +715,19 @@
     if (btnJugar){
       btnJugar.onclick = ()=>{
         if (portada) portada.style.display = "none";
-        if (dialog){
+
+        // Mostrar PRÓLOGO primero
+        if (introScene){
+          introIndex = 0;
+          introScene.style.display = "block";
+          showIntroSlide();
+        } else if (dialog){
+          // Fallback directo al diálogo
           dlgIndex = 0;
           dialog.style.display = "block";
           showCurrentDialog();
         } else {
+          // Fallback directo al juego
           players=[makeKnight(),makeArcher()];
           fase = 1; gameMode="skirmish";
           mapa.style.display = "grid";
@@ -652,11 +738,12 @@
       };
     }
 
+    if (btnIntroNext) btnIntroNext.onclick = advanceIntro;
     if (btnDialogNext) btnDialogNext.onclick = advanceDialog;
 
     setupOrientationLock();
 
-    // Prepara el nivel 1 por debajo
+    // Prepara el nivel 1 por debajo (cuando acabe el diálogo)
     players=[makeKnight(),makeArcher()];
     fase=1; gameMode="skirmish";
     spawnFase(); dibujarMapa();
