@@ -5,7 +5,7 @@
   <title>TACTIC HEROES</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=rescate-6">
+  <link rel="stylesheet" href="style.css?v=rescate-7">
 </head>
 <body>
   <!-- Bloqueo por orientación horizontal -->
@@ -55,11 +55,20 @@
     </div>
   </div>
 
-  <!-- Overlay NIVEL COMPLETADO -->
+  <!-- Overlay VICTORIA -->
   <div id="overlayWin" class="overlay" style="display:none">
     <div class="overlay-box">
       <h1 id="winTitle">NIVEL COMPLETADO</h1>
       <button id="btnContinuar" class="primary">Continuar</button>
+    </div>
+  </div>
+
+  <!-- Overlay GAME OVER -->
+  <div id="overlayGameOver" class="overlay" style="display:none">
+    <div class="overlay-box lose">
+      <h1 id="goTitle">FIN DE LA PARTIDA</h1>
+      <p id="goReason" class="go-reason"></p>
+      <button id="btnGameOverHome" class="primary danger">Inicio</button>
     </div>
   </div>
 
@@ -77,6 +86,6 @@
   <!-- Tutorial: barra inferior (no bloquea acciones) -->
   <div id="tutorialBar" style="display:none"></div>
 
-  <script src="script.js?v=rescate-6"></script>
+  <script src="script.js?v=rescate-7"></script>
 </body>
 </html>
