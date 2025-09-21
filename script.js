@@ -1,6 +1,6 @@
 /* ============================================
-   TACTIC HEROES — INTRO CROSSFADE + TUTORIAL + RESCATE
-   v=rescate-6
+   TACTIC HEROES — INTRO CROSSFADE + TUTORIAL + RESCATE + GAME OVER
+   v=rescate-7
 ============================================ */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
@@ -49,6 +49,10 @@
   const overlayWin = document.getElementById("overlayWin");
   const winTitle = document.getElementById("winTitle");
   const btnContinuar = document.getElementById("btnContinuar");
+  const overlayGameOver = document.getElementById("overlayGameOver");
+  const goTitle = document.getElementById("goTitle");
+  const goReason = document.getElementById("goReason");
+  const btnGameOverHome = document.getElementById("btnGameOverHome");
   const turnBanner = document.getElementById("turnBanner");
 
   const portada = document.getElementById("portada");
@@ -146,7 +150,7 @@
   const enLineaRecta = (a,b) => (a.fila===b.fila) || (a.col===b.col);
   function getCelda(f,c){ return mapa.querySelector(`.celda[data-key="${f},${c}"]`); }
 
-  // ---------- Spawns estándar (cuando NO estamos en tutorial ni rescate) ----------
+  // ---------- Spawns estándar ----------
   function spawnFase(){
     enemies = [];
     const count = (fase === 1) ? 3 : (fase === 2) ? 4 : 0;
@@ -205,15 +209,13 @@
     if (tutorialBar){ tutorialBar.style.display = "none"; tutorialBar.textContent = ""; }
   }
 
-  // ---------- RESCATE (coordenadas dentro del área jugable) ----------
+  // ---------- RESCATE ----------
   function startRescueScenario(){
     rescueMode = true;
-    // Jugadores (filas < 12 para que sean jugables)
     players = [
       { ...makeKnight(), fila: 10, col: 1, mp: PLAYER_MAX_MP, acted: false },
       { ...makeArcher(), fila: 10, col: 3, mp: PLAYER_MAX_MP, acted: false },
     ];
-    // Aldeanos aliados
     villagersUnit = {
       id: "V", tipo: "aldeanos",
       fila: 11, col: 2, vivo: true, nombre: "Aldeanos",
@@ -223,7 +225,6 @@
     };
     players.push(villagersUnit);
 
-    // Enemigos
     enemies = [
       { id:`RE${Date.now()}-1`, nombre:"Soldado 1", fila: 2, col: 6, vivo:true, hp:50, maxHp:50, retrato:"assets/enemy.PNG", damage:ENEMY_BASE_DAMAGE, mp: ENEMY_MAX_MP },
       { id:`RE${Date.now()}-2`, nombre:"Soldado 2", fila: 3, col: 7, vivo:true, hp:50, maxHp:50, retrato:"assets/enemy.PNG", damage:ENEMY_BASE_DAMAGE, mp: ENEMY_MAX_MP },
@@ -248,20 +249,36 @@
       if (btnContinuar) btnContinuar.onclick = ()=>{ overlayWin.style.display = "none"; location.reload(); };
       return true;
     }
-    // Lose
-    if (villagersUnit?.vivo){
+    // Lose (Aldeanos capturados/muertos) -> GAME OVER
+    if (villagersUnit){
       for (const e of enemies){
         if (e.vivo && e.fila === villagersUnit.fila && e.col === villagersUnit.col){
           villagersUnit.vivo = false;
-          setTurno("fin");
-          if (winTitle) winTitle.textContent = "¡Aldeanos capturados!";
-          overlayWin.style.display = "grid";
-          if (btnContinuar) btnContinuar.onclick = ()=>{ overlayWin.style.display = "none"; location.reload(); };
+          showGameOver("¡Aldeanos capturados!");
           return true;
         }
       }
+      if (!villagersUnit.vivo){
+        showGameOver("¡Aldeanos han caído!");
+        return true;
+      }
     }
     return false;
+  }
+
+  // ---------- GAME OVER ----------
+  function showGameOver(reason){
+    setTurno("fin");
+    if (goTitle) goTitle.textContent = "FIN DE LA PARTIDA";
+    if (goReason) goReason.textContent = reason || "";
+    if (overlayGameOver) overlayGameOver.style.display = "grid";
+    if (btnGameOverHome){
+      btnGameOverHome.onclick = ()=>{
+        // Volver a portada
+        if (overlayGameOver) overlayGameOver.style.display = "none";
+        location.reload();
+      };
+    }
   }
 
   // ---------- Render ----------
@@ -287,10 +304,10 @@
             const img = document.createElement("img");
             if (p.tipo==="guerrero") img.src = "assets/player.PNG";
             else if (p.tipo==="arquero") img.src = "assets/archer.PNG";
-            else if (p.tipo==="aldeanos") img.src = "assets/Aldeanos.PNG";
+            else if (p.tipo==="aldeanos") { img.src = "assets/Aldeanos.PNG"; img.className = "fichaMiniImg villager"; }
             else img.src = "assets/player.PNG";
+            if (!img.className) img.className = "fichaMiniImg";
             img.alt = p.nombre;
-            img.className = "fichaMiniImg";
             celda.appendChild(img);
           }
         }
@@ -356,8 +373,9 @@
     const pct = Math.max(0, Math.min(100, Math.round((u.hp/u.maxHp)*100)));
     const grad = (pct>50)?"linear-gradient(90deg,#2ecc71,#27ae60)":(pct>25)?"linear-gradient(90deg,#f1c40f,#e67e22)":"linear-gradient(90deg,#e74c3c,#c0392b)";
     const extra = `· Daño <b>${u.damage}</b> · KOs <b>${u.kills||0}</b> · MP <b>${u.mp}</b>/${PLAYER_MAX_MP}`;
+    const villagerClass = (u.tipo === "aldeanos") ? " villager" : "";
     ficha.innerHTML = `
-      <div class="card">
+      <div class="card${villagerClass}">
         <div class="portrait" style="background-image:url('${u.retrato}')"></div>
         <div class="info">
           <p class="name">${u.nombre}</p>
@@ -517,7 +535,7 @@
           }
         }
 
-        // Fin de oleadas del combate base → mostrar diálogo Aldeanos y luego rescate
+        // Fin de oleadas del combate base → postWin dialog → rescate
         if (!tutorialActive && !rescueMode && enemies.every(e=>!e.vivo)) {
           if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
           else if (fase === 2 && !postWinDialogShown){
@@ -537,7 +555,6 @@
   }
 
   function comprobarCambioATurnoEnemigo(){
-    // Pasar turno a enemigo sólo cuando TODAS las unidades han actuado
     if (players.every(p => !p.vivo || p.acted)) {
       setTurno("enemigo");
       setTimeout(turnoIAEnemigos, 140);
@@ -548,7 +565,7 @@
   function turnoIAEnemigos(){
     if (turno !== "enemigo") return;
     const vivosJ = players.filter(p=>p.vivo);
-    if (vivosJ.length === 0) { setTurno("fin"); return; }
+    if (vivosJ.length === 0) { showGameOver("Todos tus personajes han caído."); return; }
 
     for (const en of enemies) {
       if (!en.vivo) continue;
@@ -576,6 +593,7 @@
         if(!moved) break;
       }
 
+      // Aldeanos capturados causan Game Over
       if (rescueMode && villagersUnit?.vivo && en.fila === villagersUnit.fila && en.col === villagersUnit.col){
         checkRescueWinLose();
         return;
@@ -594,7 +612,7 @@
       if (checkRescueWinLose()) return;
     }
 
-    if (players.every(p=>!p.vivo)) { setTurno("fin"); }
+    if (players.every(p=>!p.vivo)) { showGameOver("Todos tus personajes han caído."); }
     else {
       setTurno("jugador");
       if (!tutorialActive && !rescueMode && enemies.every(e=>!e.vivo)) {
@@ -664,7 +682,6 @@
 
   function clearSpeaker(){ [charKnight, charArcher, charVillagers].forEach(el => el && el.classList.remove('speaking')); }
 
-  // Ocultar/mostrar retratos para evitar transparencias raras
   function setActiveSpeaker(){
     const lines = currentDialogArray();
     const line = lines[dlgIndex];
@@ -681,7 +698,6 @@
         charArcher.style.display = "block";
       }
     } else {
-      // diálogo de intro (solo Hans y Risko visibles)
       charVillagers.style.display = "none";
       charKnight.style.display = "block";
       charArcher.style.display = "block";
@@ -748,7 +764,6 @@
   }
 
   function startPostWinDialog(){
-    // Lanza el diálogo con Aldeanos tras ganar el primer combate (fase 2 completa)
     mapa.style.display = "none";
     postDialogMode = "postWin";
     dlgIndex = 0;
@@ -780,6 +795,9 @@
 
     if (btnContinuar){
       btnContinuar.onclick=()=>{ overlayWin.style.display="none"; location.reload(); };
+    }
+    if (btnGameOverHome){
+      btnGameOverHome.onclick = ()=>{ if (overlayGameOver) overlayGameOver.style.display = "none"; location.reload(); };
     }
 
     // Portada → Intro → Diálogo intro → Tutorial guiado
