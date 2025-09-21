@@ -1,4 +1,4 @@
-/* build: skirmish+rescue + PNG + static-dialog + names + intro */
+/* build: skirmish+rescue + PNG + static-dialog + names + intro + tutorial */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
   const ROWS = 16, COLS = 9;
@@ -49,55 +49,51 @@
   let introTyping = false, introTimer = null;
 
   // ---------- Diálogos intro (Hans & Risko) ----------
-const dialogLines = [
-  {
-    who: 'knight',
-    name: 'Risko',
-    text: 'Ese malnacido de Fortris se ha hecho con el poder. Eres el único guerrero que me queda, Hans.'
-  },
-  {
-    who: 'archer',
-    name: 'Hans',
-    text: '¡Siempre estaré a tu lado, capitana! Pero debemos buscar donde refugiarnos, llevamos varios días huyendo y aún nos pisan los talones esos soldados…'
-  },
-  {
-    who: 'knight',
-    name: 'Risko',
-    text: 'Tenemos que idear un plan para detener a Fortris pero para ello, primero tenemos que sobrevivir. Prepárate porque aquí vienen…'
-  },
-  {
-    who: 'archer',
-    name: 'Hans',
-    text: 'Hace mucho que no teníamos un combate real, más allá de los entrenamientos. Aprovechemos para recordar lo más básico. ¡Vamos!'
-  }
-];
+  const dialogLines = [
+    {
+      who: 'knight',
+      name: 'Risko',
+      text: 'Ese malnacido de Fortris se ha hecho con el poder. Eres el único guerrero que me queda, Hans.'
+    },
+    {
+      who: 'archer',
+      name: 'Hans',
+      text: '¡Siempre estaré a tu lado, capitana! Pero debemos buscar donde refugiarnos, llevamos varios días huyendo y aún nos pisan los talones esos soldados…'
+    },
+    {
+      who: 'knight',
+      name: 'Risko',
+      text: 'Tenemos que idear un plan para detener a Fortris pero para ello, primero tenemos que sobrevivir. Prepárate porque aquí vienen…'
+    },
+    {
+      who: 'archer',
+      name: 'Hans',
+      text: 'Hace mucho que no teníamos un combate real, más allá de los entrenamientos. Aprovechemos para recordar lo más básico. ¡Vamos!'
+    }
+  ];
   let dlgIndex = 0, typing=false, typeTimer=null;
 
-  // Unidades del jugador (Risko/Hans)
-  const makeKnight = () => ({
-    id: "K", tipo: "guerrero",
-    fila: Math.floor(ROWS*0.6), col: Math.floor(COLS*0.25),
-    vivo: true, nombre: "Risko",
-    hp: 100, maxHp: 100,
-    retrato: "assets/player.PNG", nivel: 1, kills: 0,
-    damage: 50, range: [1], acted: false, mp: PLAYER_MAX_MP
-  });
-  const makeArcher = () => ({
-    id: "A", tipo: "arquero",
-    fila: Math.floor(ROWS*0.65), col: Math.floor(COLS*0.25),
-    vivo: true, nombre: "Hans",
-    hp: 80, maxHp: 80,
-    retrato: "assets/archer.PNG", nivel: 1, kills: 0,
-    damage: 50, range: [2], acted: false, mp: PLAYER_MAX_MP
-  });
-  const makeVillager = () => ({
-    id: "V", tipo: "aldeano",
-    fila: Math.floor(ROWS*0.75), col: Math.floor(COLS*0.18),
-    vivo: true, nombre: "Aldeano",
-    hp: 60, maxHp: 60,
-    retrato: "assets/villager.PNG",
-    damage: 0, range: [], acted: false, mp: 3
-  });
+  // ---------- Tutorial ----------
+  let tutorialActive = false;
+  let tutorialIndex = 0;
+  // Flags capturadas por las acciones del jugador/IA
+  let tut_lastSelected = null;
+  let tut_lastMovedUnit = null;
+  let tut_lastAttackBy = null;
+  let tut_endedTurn = false;
+  let tut_playerTurnResumed = false;
+
+  const tutorialSteps = [
+    { text: "Toca a <b>Risko</b> para seleccionarla.", waitFor: () => tut_lastSelected?.nombre === "Risko" },
+    { text: "Mueve a <b>Risko</b> a una casilla resaltada en azul.", waitFor: () => tut_lastMovedUnit?.nombre === "Risko" },
+    { text: "Ataca a un <b>Soldado</b> si está en rango. Si no lo está, acércate un poco más y ataca cuando puedas.", waitFor: () => tut_lastAttackBy != null },
+    { text: "Ahora selecciona a <b>Hans</b>.", waitFor: () => tut_lastSelected?.nombre === "Hans" },
+    { text: "Mueve a <b>Hans</b> y ataca si puedes.", waitFor: () => tut_lastMovedUnit?.nombre === "Hans" || tut_lastAttackBy === "Hans" },
+    { text: "Cuando termines, pulsa <b>Pasar turno</b>.", waitFor: () => tut_endedTurn === true },
+    // Paso informativo durante el turno enemigo
+    { text: "Turno enemigo. Observa cómo se mueven y atacan.", infoOnly: true },
+    { text: "¡Listo! Completa el combate como prefieras. Este tutorial ha terminado.", infoOnly: true, finish: true }
+  ];
 
   // DOM
   const mapa = document.getElementById("mapa");
@@ -126,6 +122,12 @@ const dialogLines = [
   const btnDialogNext = document.getElementById("btnDialogNext");
   const charKnight = document.getElementById("charKnight");   // Risko (derecha)
   const charArcher = document.getElementById("charArcher");   // Hans (izquierda)
+
+  // Tutorial DOM
+  const tutorialOverlay = document.getElementById("tutorialOverlay");
+  const tutorialTextEl = document.getElementById("tutorialText");
+  const tutorialTitleEl = document.getElementById("tutorialTitle");
+  const btnTutorialNext = document.getElementById("btnTutorialNext");
 
   // ---------- Banner turno ----------
   function showTurnBanner(text){
@@ -168,7 +170,7 @@ const dialogLines = [
     blocker.style.display = shouldBlock ? "grid" : "none";
     if (portada){ portada.style.pointerEvents = "auto"; portada.style.filter = "none"; }
     const dim = (el)=>{ if(!el) return; el.style.pointerEvents = shouldBlock ? "none" : "auto"; el.style.filter = shouldBlock ? "grayscale(1) blur(1.5px) brightness(.7)" : "none"; };
-    dim(introScene); dim(dialog); dim(mapa);
+    dim(introScene); dim(dialog); dim(mapa); dim(tutorialOverlay);
   }
   function setupOrientationLock(){
     applyOrientationLock();
@@ -295,11 +297,13 @@ const dialogLines = [
 
   // ---------- Acciones / HUD ----------
   function endTurn(){
+    tut_endedTurn = true; // <<< tutorial
     players.forEach(p=>{ p.acted=true; p.mp=0; });
     if (gameMode==="rescue" && aldeano){ aldeano.acted = true; aldeano.mp = 0; }
     seleccionado=null; celdasMovibles.clear(); distSel=null;
     acciones.innerHTML="";
     setTurno("enemigo");
+    checkTutorialProgress(); // <<< tutorial
     setTimeout(turnoIAEnemigos, 140);
   }
 
@@ -401,14 +405,19 @@ const dialogLines = [
     const unidadClick = pj || (esAldeano ? aldeano : null);
 
     if (unidadClick){
-      if (unidadClick.acted){ seleccionado=null; celdasMovibles.clear(); distSel=null; dibujarMapa(); acciones.innerHTML=""; return; }
+      // <<< tutorial: registro de selección
+      tut_lastSelected = unidadClick;
+
+      if (unidadClick.acted){ seleccionado=null; celdasMovibles.clear(); distSel=null; dibujarMapa(); acciones.innerHTML=""; checkTutorialProgress(); return; }
       seleccionado=unidadClick; if (seleccionado.mp>0) calcularCeldasMovibles(seleccionado); else { celdasMovibles.clear(); distSel=null; }
-      dibujarMapa(); botonesAccionesPara(seleccionado); return;
+      dibujarMapa(); botonesAccionesPara(seleccionado);
+      checkTutorialProgress(); // <<< tutorial
+      return;
     }
 
     if (seleccionado){
       if (f===seleccionado.fila && c===seleccionado.col){
-        seleccionado=null; celdasMovibles.clear(); distSel=null; dibujarMapa(); acciones.innerHTML=""; return;
+        seleccionado=null; celdasMovibles.clear(); distSel=null; dibujarMapa(); acciones.innerHTML=""; checkTutorialProgress(); return;
       }
       const esAlcanzable = celdasMovibles.has(`${f},${c}`);
       const ocupado = enemies.some(e=>e.vivo&&e.fila===f&&e.col===c) ||
@@ -419,6 +428,9 @@ const dialogLines = [
         seleccionado.fila=f; seleccionado.col=c;
         seleccionado.mp = Math.max(0, seleccionado.mp - coste);
         renderFicha(seleccionado);
+
+        // <<< tutorial: registro de movimiento
+        tut_lastMovedUnit = seleccionado;
 
         if (gameMode==="rescue" && seleccionado===aldeano && f===salida.fila && c===salida.col){
           setTurno("fin");
@@ -432,6 +444,7 @@ const dialogLines = [
         if (seleccionado.mp>0){ calcularCeldasMovibles(seleccionado); }
         else { celdasMovibles.clear(); distSel=null; seleccionado.acted=true; }
         dibujarMapa(); botonesAccionesPara(seleccionado);
+        checkTutorialProgress(); // <<< tutorial
         comprobarCambioATurnoEnemigo();
       } else {
         botonesAccionesPara(seleccionado);
@@ -492,6 +505,7 @@ const dialogLines = [
     if (!objetivo || !stillInRange(u, objetivo)) { botonesAccionesPara(u); return; }
 
     aplicarDanyo(objetivo, u.damage, 'player');
+    tut_lastAttackBy = u.nombre;  // <<< tutorial
     renderFicha(objetivo);
 
     setTimeout(()=>{
@@ -510,10 +524,12 @@ const dialogLines = [
           overlayWin.querySelector("h1").textContent = "NIVEL COMPLETADO";
           overlayWin.style.display = "grid";
         }
+        checkTutorialProgress(); // <<< tutorial
         return;
       }
 
       dibujarMapa();
+      checkTutorialProgress(); // <<< tutorial
       comprobarCambioATurnoEnemigo();
     }, 650);
   }
@@ -576,6 +592,10 @@ const dialogLines = [
     if (controlables.every(p=>!p.vivo)) { setTurno("fin"); }
     else {
       setTurno("jugador");
+      // <<< tutorial: el turno del jugador ha vuelto
+      tut_playerTurnResumed = true;
+      checkTutorialProgress(); // <<< tutorial
+
       if (gameMode==="skirmish" && enemies.every(e=>!e.vivo)) {
         if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
         else if (fase === 2){
@@ -640,7 +660,7 @@ const dialogLines = [
     showIntroSlide();
   }
 
-  // ---------- Typewriter (Diálogo Hans & Risko) ----------
+  // ---------- Diálogo: hablante resaltado (sin animaciones) ----------
   function clearSpeaker(){ [charKnight, charArcher].forEach(el => el && el.classList.remove('speaking')); }
   function setActiveSpeaker(){
     const line = dialogLines[dlgIndex];
@@ -690,10 +710,77 @@ const dialogLines = [
       dialog.style.display = "none";
       mapa.style.display = "grid";
       setTurno("jugador");
+
+      // --- INICIO DEL TUTORIAL justo después del diálogo ---
+      if (tutorialOverlay) showTutorial();
+
       applyOrientationLock();
       return;
     }
     showCurrentDialog();
+  }
+
+  // ---------- Tutorial: helpers ----------
+  function showTutorial(){
+    tutorialActive = true;
+    tutorialIndex = 0;
+
+    // Reset de flags
+    tut_lastSelected = null;
+    tut_lastMovedUnit = null;
+    tut_lastAttackBy = null;
+    tut_endedTurn = false;
+    tut_playerTurnResumed = false;
+
+    tutorialOverlay.style.display = "block";
+    renderTutorialStep();
+  }
+
+  function renderTutorialStep(){
+    const step = tutorialSteps[tutorialIndex];
+    if (!step) { endTutorial(); return; }
+    if (tutorialTitleEl) tutorialTitleEl.textContent = "Tutorial";
+    if (tutorialTextEl) tutorialTextEl.innerHTML = step.text;
+
+    const cta = tutorialOverlay.querySelector(".dialog-cta");
+    if (cta){
+      cta.style.display = step.infoOnly ? "flex" : "none";
+    }
+  }
+
+  function nextTutorialStep(){
+    tutorialIndex++;
+    const step = tutorialSteps[tutorialIndex];
+    renderTutorialStep();
+    if (step?.finish) endTutorial();
+  }
+
+  function endTutorial(){
+    tutorialActive = false;
+    if (tutorialOverlay) tutorialOverlay.style.display = "none";
+  }
+
+  function checkTutorialProgress(){
+    if (!tutorialActive) return;
+    const step = tutorialSteps[tutorialIndex];
+    if (!step) return;
+
+    if (step.waitFor && step.waitFor()){
+      nextTutorialStep();
+      return;
+    }
+    // Avanza automáticamente cuando vuelva el turno del jugador tras el paso informativo
+    if (step.infoOnly && tutorialIndex === 6 && tut_playerTurnResumed){
+      nextTutorialStep();
+      return;
+    }
+  }
+
+  if (btnTutorialNext){
+    btnTutorialNext.onclick = () => {
+      if (!tutorialActive) return;
+      nextTutorialStep();
+    };
   }
 
   // --- Arranque RESCATE ---
@@ -709,6 +796,32 @@ const dialogLines = [
     dibujarMapa();
     setTurno("jugador");
   }
+
+  // ---------- Unidades del jugador (Risko/Hans/Aldeano) ----------
+  const makeKnight = () => ({
+    id: "K", tipo: "guerrero",
+    fila: Math.floor(ROWS*0.6), col: Math.floor(COLS*0.25),
+    vivo: true, nombre: "Risko",
+    hp: 100, maxHp: 100,
+    retrato: "assets/player.PNG", nivel: 1, kills: 0,
+    damage: 50, range: [1], acted: false, mp: PLAYER_MAX_MP
+  });
+  const makeArcher = () => ({
+    id: "A", tipo: "arquero",
+    fila: Math.floor(ROWS*0.65), col: Math.floor(COLS*0.25),
+    vivo: true, nombre: "Hans",
+    hp: 80, maxHp: 80,
+    retrato: "assets/archer.PNG", nivel: 1, kills: 0,
+    damage: 50, range: [2], acted: false, mp: PLAYER_MAX_MP
+  });
+  const makeVillager = () => ({
+    id: "V", tipo: "aldeano",
+    fila: Math.floor(ROWS*0.75), col: Math.floor(COLS*0.18),
+    vivo: true, nombre: "Aldeano",
+    hp: 60, maxHp: 60,
+    retrato: "assets/villager.PNG",
+    damage: 0, range: [], acted: false, mp: 3
+  });
 
   // ---------- Init ----------
   function init(){
@@ -759,7 +872,7 @@ const dialogLines = [
 
     setupOrientationLock();
 
-    // Prepara el nivel 1 por debajo (cuando acabe el diálogo)
+    // Prepara el nivel 1 por debajo para cuando termine el diálogo/tutorial
     players=[makeKnight(),makeArcher()];
     fase=1; gameMode="skirmish";
     spawnFase(); dibujarMapa();
