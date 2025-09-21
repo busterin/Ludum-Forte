@@ -1,6 +1,6 @@
 /* ============================================
-   TACTIC HEROES — INTRO CROSSFADE + TUTORIAL + RESCATE + GAME OVER
-   v=rescate-7
+   LUDUM FORTE — INTRO + TUTORIAL + RESCATE + GAME OVER + NIVELES
+   v=levels-1
 ============================================ */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
@@ -101,7 +101,7 @@
   }
   function setTurno(t){
     turno = t;
-    showTurnBanner(t==="jugador" ? "TU TURNO" : t==="enemigo" ? "TURNO ENEMIGO" : "FIN DE PARTIDA");
+    showTurnBanner(t==="jugador" ? "TU TURNO" : t==="enemigo" ? "TURNO ENEMIGO" : "FIN DE LA PARTIDA");
   }
 
   // ---------- Layout / orientación ----------
@@ -149,6 +149,27 @@
   const manhattan = (a,b) => Math.abs(a.fila-b.fila)+Math.abs(a.col-b.col);
   const enLineaRecta = (a,b) => (a.fila===b.fila) || (a.col===b.col);
   function getCelda(f,c){ return mapa.querySelector(`.celda[data-key="${f},${c}"]`); }
+
+  // ---------- NIVELES ----------
+  function awardKillAndMaybeLevelUp(u){
+    if (!u) return;
+    if (typeof u.killCounter !== 'number') u.killCounter = 0;
+    if (typeof u.nextKillTarget !== 'number') u.nextKillTarget = 2;
+    if (typeof u.nivel !== 'number') u.nivel = 1;
+
+    u.killCounter += 1;
+    if (u.killCounter >= u.nextKillTarget){
+      u.killCounter = 0;
+      u.nivel += 1;
+      if (u.nivel % 2 === 0){
+        u.maxHp += 10;
+        u.hp = Math.min(u.maxHp, u.hp + 10);
+      } else {
+        u.damage += 5;
+      }
+      u.nextKillTarget += 1;
+    }
+  }
 
   // ---------- Spawns estándar ----------
   function spawnFase(){
@@ -220,7 +241,7 @@
       id: "V", tipo: "aldeanos",
       fila: 11, col: 2, vivo: true, nombre: "Aldeanos",
       hp: 60, maxHp: 60,
-      retrato: "assets/Aldeanos.PNG", nivel: 1, kills: 0,
+      retrato: "assets/Aldeanos.PNG", nivel: 1, killCounter: 0, nextKillTarget: 2,
       damage: 0, range: [], acted: false, mp: 3
     };
     players.push(villagersUnit);
@@ -249,7 +270,7 @@
       if (btnContinuar) btnContinuar.onclick = ()=>{ overlayWin.style.display = "none"; location.reload(); };
       return true;
     }
-    // Lose (Aldeanos capturados/muertos) -> GAME OVER
+    // Lose (Aldeanos)
     if (villagersUnit){
       for (const e of enemies){
         if (e.vivo && e.fila === villagersUnit.fila && e.col === villagersUnit.col){
@@ -274,7 +295,6 @@
     if (overlayGameOver) overlayGameOver.style.display = "grid";
     if (btnGameOverHome){
       btnGameOverHome.onclick = ()=>{
-        // Volver a portada
         if (overlayGameOver) overlayGameOver.style.display = "none";
         location.reload();
       };
@@ -346,7 +366,7 @@
     if (turno!=="jugador" || !unidad?.vivo) return;
 
     const infoMp = document.createElement("div");
-    infoMp.textContent = `MP: ${unidad.mp}/${PLAYER_MAX_MP}`;
+    infoMp.textContent = `Nivel ${unidad.nivel || 1} · MP: ${unidad.mp}/${PLAYER_MAX_MP} · Daño: ${unidad.damage}`;
     infoMp.style.marginRight = "6px";
     infoMp.style.alignSelf = "center";
     acciones.appendChild(infoMp);
@@ -372,7 +392,8 @@
     if(!u){ ficha.style.display="none"; ficha.innerHTML=""; return; }
     const pct = Math.max(0, Math.min(100, Math.round((u.hp/u.maxHp)*100)));
     const grad = (pct>50)?"linear-gradient(90deg,#2ecc71,#27ae60)":(pct>25)?"linear-gradient(90deg,#f1c40f,#e67e22)":"linear-gradient(90deg,#e74c3c,#c0392b)";
-    const extra = `· Daño <b>${u.damage}</b> · KOs <b>${u.kills||0}</b> · MP <b>${u.mp}</b>/${PLAYER_MAX_MP}`;
+    const lvl = u.nivel || 1;
+    const extra = `Nivel <b>${lvl}</b> · Daño <b>${u.damage}</b> · MP <b>${u.mp}</b>/${PLAYER_MAX_MP}`;
     const villagerClass = (u.tipo === "aldeanos") ? " villager" : "";
     ficha.innerHTML = `
       <div class="card${villagerClass}">
@@ -522,7 +543,7 @@
 
     setTimeout(()=>{
       if(!objetivo.vivo){
-        u.kills=(u.kills||0)+1;
+        awardKillAndMaybeLevelUp(u);
 
         if (tutorialActive){
           if (tutorialStep === 0 && objetivoRef.id === soldier1.id){
@@ -535,7 +556,6 @@
           }
         }
 
-        // Fin de oleadas del combate base → postWin dialog → rescate
         if (!tutorialActive && !rescueMode && enemies.every(e=>!e.vivo)) {
           if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
           else if (fase === 2 && !postWinDialogShown){
@@ -777,7 +797,8 @@
     fila: Math.floor(ROWS*0.6), col: Math.floor(COLS*0.25),
     vivo: true, nombre: "Risko",
     hp: 100, maxHp: 100,
-    retrato: "assets/player.PNG", nivel: 1, kills: 0,
+    retrato: "assets/player.PNG",
+    nivel: 1, killCounter: 0, nextKillTarget: 2,
     damage: 50, range: [1], acted: false, mp: PLAYER_MAX_MP
   });
   const makeArcher = () => ({
@@ -785,7 +806,8 @@
     fila: Math.floor(ROWS*0.65), col: Math.floor(COLS*0.25),
     vivo: true, nombre: "Hans",
     hp: 80, maxHp: 80,
-    retrato: "assets/archer.PNG", nivel: 1, kills: 0,
+    retrato: "assets/archer.PNG",
+    nivel: 1, killCounter: 0, nextKillTarget: 2,
     damage: 50, range: [2], acted: false, mp: PLAYER_MAX_MP
   });
 
