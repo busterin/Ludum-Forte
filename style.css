@@ -1,6 +1,6 @@
 /* ============================================
    TACTIC HEROES — INTRO + TUTORIAL + RESCATE
-   v=rescate-6
+   v=rescate-7
 ============================================ */
 
 /* ===========================
@@ -166,6 +166,15 @@ body {
 .overlay-box{ background:#101418; border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:22px 20px; width:min(90vw,420px); text-align:center; box-shadow:0 12px 28px rgba(0,0,0,.45); }
 .overlay-box h1{ margin:0 0 14px 0; }
 
+/* Estilo Game Over */
+.overlay-box.lose{
+  border-color: rgba(255, 80, 80, .55);
+  box-shadow: 0 0 24px rgba(255,80,80,.25), 0 12px 28px rgba(0,0,0,.55);
+}
+.go-reason{ opacity:.9; margin: 0 0 12px 0; }
+button.danger{ background:#e74c3c; border-color:#e74c3c; color:#fff; }
+button.danger:hover{ background:#ff5e4f; }
+
 /* Turn banner */
 .turn-banner{
   position: fixed; left: 50%; top: max(10px, env(safe-area-inset-top)); transform: translateX(-50%); z-index: 8000;
@@ -209,6 +218,14 @@ body {
 
 /* Sprites */
 .fichaMiniImg { width: 90%; height: 90%; object-fit: contain; image-rendering: pixelated; position: relative; z-index: 1; pointer-events: none; }
+/* Resaltado especial para Aldeanos en el tablero */
+.fichaMiniImg.villager{
+  outline: 2px solid rgba(255,215,0,.95);
+  outline-offset: -2px;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(255,215,0,.45);
+  background: rgba(255, 215, 0, .08);
+}
 
 /* HUD tarjeta */
 #ficha { display: none; width: 100%; text-align: left; background: rgba(16,20,24,.88); color: #ddd; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 6px 8px; }
@@ -220,6 +237,12 @@ body {
 .hp .bar { position: relative; flex: 1; height: 10px; background: #243042; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; overflow: hidden; }
 .hp .bar > span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: width .25s ease; }
 .hp .value { font-size: 11px; min-width: 76px; text-align: right; color:#e6e9ef; }
+
+/* Resaltado especial para Aldeanos en la ficha HUD */
+.card.villager .portrait{
+  outline: 2px solid rgba(255,215,0,.95);
+  box-shadow: 0 0 12px rgba(255,215,0,.45);
+}
 
 /* Botones + Tutorial bar */
 #acciones { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
