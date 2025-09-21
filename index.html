@@ -5,7 +5,7 @@
   <title>TACTIC HEROES</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=rescate-2">
+  <link rel="stylesheet" href="style.css?v=rescatar">
 </head>
 <body>
   <!-- Bloqueo por orientación horizontal -->
@@ -21,30 +21,13 @@
     <button id="btnJugar" class="btn-jugar">JUGAR</button>
   </div>
 
-  <!-- PRÓLOGO / INTRO (4 imágenes + caja de texto, cross-fade A/B) -->
-  <div id="introScene" style="display:none">
-    <div class="intro-bg layer" id="introBgA"></div>
-    <div class="intro-bg layer" id="introBgB"></div>
-    <div class="dialog-box">
-      <div class="dialog-name" id="introName">Prólogo</div>
-      <div class="dialog-text" id="introText"></div>
-      <div class="dialog-cta">
-        <button id="btnIntroNext" class="primary small">Continuar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Escena de diálogo (3 personajes + typewriter) -->
+  <!-- Escena de diálogo -->
   <div id="dialogScene" style="display:none">
     <div class="dialog-bg"></div>
-
-    <!-- IZQUIERDA: Hans -->
-    <img class="dialog-char left"  id="charArcher"   src="assets/ArqueroDialogo.PNG"  alt="Hans">
-    <!-- DERECHA: Risko -->
-    <img class="dialog-char right" id="charKnight"   src="assets/GuerreraDialogo.PNG" alt="Risko">
-    <!-- CENTRO: Aldeanos (solo se usa en el diálogo post-combate) -->
+    <!-- Personajes -->
+    <img class="dialog-char left" id="charArcher" src="assets/ArqueroDialogo.PNG" alt="Hans">
+    <img class="dialog-char right" id="charKnight" src="assets/GuerreraDialogo.PNG" alt="Risko">
     <img class="dialog-char center" id="charVillagers" src="assets/Aldeanos.PNG" alt="Aldeanos" style="display:none;">
-
     <!-- Caja de diálogo -->
     <div class="dialog-box">
       <div class="dialog-name" id="dialogName">Risko</div>
@@ -55,7 +38,7 @@
     </div>
   </div>
 
-  <!-- Overlay NIVEL COMPLETADO -->
+  <!-- Overlay nivel completado -->
   <div id="overlayWin" class="overlay" style="display:none">
     <div class="overlay-box">
       <h1 id="winTitle">NIVEL COMPLETADO</h1>
@@ -66,7 +49,7 @@
   <!-- Banner de turno -->
   <div id="turnBanner" class="turn-banner" style="display:none">TU TURNO</div>
 
-  <!-- Tablero (9x16) + HUD dentro -->
+  <!-- Tablero -->
   <div id="mapa" style="display:none">
     <div id="hud">
       <div id="ficha"></div>
@@ -74,9 +57,6 @@
     </div>
   </div>
 
-  <!-- Tutorial: barra inferior (no bloquea acciones) -->
-  <div id="tutorialBar" style="display:none"></div>
-
-  <script src="script.js?v=rescate-2"></script>
+  <script src="script.js?v=rescatar"></script>
 </body>
 </html>
