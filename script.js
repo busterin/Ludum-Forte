@@ -27,31 +27,30 @@
   let salida = { fila: 0, col: 4 };
 
   // ---------- Diálogos intro ----------
-  const dialogLines = [
-    { who:'knight', name:'Guerrera', text:'Os doy la bienvenida a Tactic Heroes. Nuestro objetivo es derrotar al ejército rival.' },
-    { who:'archer', name:'Arquero',  text:'Selecciona un personaje para ver su rango de movimiento y después elige dónde colocarlo.' },
-    { who:'knight', name:'Guerrera', text:'La guerrera ataca adyacente y el arquero a una casilla de distancia.' },
-    { who:'archer', name:'Arquero',  text:'Todo listo. ¡Entremos en combate!' }
-  ];
-  let dlgIndex = 0, typing=false, typeTimer=null;
+const dialogLines = [
+  { who:'knight', name:'Risko', text:'Os doy la bienvenida a Tactic Heroes. Nuestro objetivo es derrotar al ejército rival.' },
+  { who:'archer', name:'Hans',  text:'Selecciona un personaje para ver su rango de movimiento y después elegir dónde colocarlo.' },
+  { who:'knight', name:'Risko', text:'Risko ataca si está adyacente al enemigo y Hans a una casilla de distancia.' },
+  { who:'archer', name:'Hans',  text:'Todo listo. ¡Entremos en combate!' }
+];
 
-  // Unidades del jugador
-  const makeKnight = () => ({
-    id: "K", tipo: "caballero",
-    fila: Math.floor(ROWS*0.6), col: Math.floor(COLS*0.25),
-    vivo: true, nombre: "Caballero",
-    hp: 100, maxHp: 100,
-    retrato: "assets/player.PNG", nivel: 1, kills: 0,
-    damage: 50, range: [1], acted: false, mp: PLAYER_MAX_MP
-  });
-  const makeArcher = () => ({
-    id: "A", tipo: "arquera",
-    fila: Math.floor(ROWS*0.65), col: Math.floor(COLS*0.25),
-    vivo: true, nombre: "Arquera",
-    hp: 80, maxHp: 80,
-    retrato: "assets/archer.PNG", nivel: 1, kills: 0,
-    damage: 50, range: [2], acted: false, mp: PLAYER_MAX_MP
-  });
+// ---------- Unidades del jugador ----------
+const makeKnight = () => ({
+  id: "K", tipo: "guerrero",
+  fila: Math.floor(ROWS*0.6), col: Math.floor(COLS*0.25),
+  vivo: true, nombre: "Risko",
+  hp: 100, maxHp: 100,
+  retrato: "assets/player.PNG", nivel: 1, kills: 0,
+  damage: 50, range: [1], acted: false, mp: PLAYER_MAX_MP
+});
+const makeArcher = () => ({
+  id: "A", tipo: "arquero",
+  fila: Math.floor(ROWS*0.65), col: Math.floor(COLS*0.25),
+  vivo: true, nombre: "Hans",
+  hp: 80, maxHp: 80,
+  retrato: "assets/archer.PNG", nivel: 1, kills: 0,
+  damage: 50, range: [2], acted: false, mp: PLAYER_MAX_MP
+});
   const makeVillager = () => ({
     id: "V", tipo: "aldeano",
     fila: Math.floor(ROWS*0.75), col: Math.floor(COLS*0.18),
