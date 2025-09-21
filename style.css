@@ -1,8 +1,6 @@
 /* ============================================
-   TACTIC HEROES — PRE-TUTORIAL + GUIDED STEPS
+   TACTIC HEROES — INTRO CROSSFADE + TUTORIAL
    Fecha: 2025-09-21
-   Contiene: portada, prólogo, diálogo estático,
-             combate base y tutorial guiado en 3 pasos
 ============================================ */
 
 /* ===========================
@@ -79,17 +77,15 @@ body {
 =========================== */
 #introScene{
   position: fixed; inset: 0; z-index: 12000; display: block;
-  /* 👇 Fondo opaco para que nunca se vea el tablero entre cambios */
+  /* Fondo opaco: nunca deja ver el tablero entre cambios */
   background: #000;
 }
 #introScene .intro-bg.layer{
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
-  /* 👇 Cross-fade suave entre capas */
   opacity: 0;
   transition: opacity .28s ease;
 }
-/* La capa visible tendrá la clase .show */
 #introScene .intro-bg.layer.show{ opacity: 1; }
 
 /* ===========================
