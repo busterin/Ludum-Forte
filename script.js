@@ -40,11 +40,93 @@
   const portada = document.getElementById("portada");
   const btnJugar = document.getElementById("btnJugar");
 
-  const introScene = document.getElementById("introScene");
-  const introBg = document.getElementById("introBg");
-  const introNameEl = document.getElementById("introName");
-  const introTextEl = document.getElementById("introText");
-  const btnIntroNext = document.getElementById("btnIntroNext");
+  // --- DOM (prólogo) ---
+const introScene = document.getElementById("introScene");
+const introBgA = document.getElementById("introBgA");
+const introBgB = document.getElementById("introBgB");
+const introNameEl = document.getElementById("introName");
+const introTextEl = document.getElementById("introText");
+const btnIntroNext = document.getElementById("btnIntroNext");
+
+// --- Cross-fade entre capas A/B ---
+let introCurrentLayer = 'A';
+function introSetBackground(url, instant=false){
+  const curr = (introCurrentLayer === 'A') ? introBgA : introBgB;
+  const next = (introCurrentLayer === 'A') ? introBgB : introBgA;
+
+  // Ponemos la siguiente imagen en la capa "next"
+  next.style.backgroundImage = `url('${url}')`;
+
+  if (instant){
+    // Primera vez: mostramos "next" sin animación y ocultamos "curr"
+    next.classList.add('show');
+    curr.classList.remove('show');
+  } else {
+    // Cross-fade: ocultamos la actual y mostramos la nueva
+    curr.classList.remove('show');
+    // Forzamos reflow para asegurar la transición (opcional, pero ayuda en iOS)
+    void next.offsetWidth;
+    next.classList.add('show');
+  }
+  // Intercambiamos la capa actual
+  introCurrentLayer = (introCurrentLayer === 'A') ? 'B' : 'A';
+}
+
+// --- Precarga de las 4 imágenes del prólogo ---
+const introPreloaded = new Set();
+function preloadIntroImages(){
+  introSlides.forEach(s=>{
+    if (introPreloaded.has(s.img)) return;
+    const im = new Image();
+    im.src = s.img;
+    introPreloaded.add(s.img);
+  });
+}
+
+// --- Typewriter del prólogo (igual que tenías) ---
+function typeWriterIntro(text, speed=22){
+  let typing = true;
+  introTextEl.textContent = '';
+  introTextEl.classList.add('type-cursor');
+  let i = 0;
+  function step(){
+    if (i <= text.length){
+      introTextEl.textContent = text.slice(0,i);
+      i++;
+      setTimeout(step, speed);
+    } else {
+      typing = false;
+      introTextEl.classList.remove('type-cursor');
+    }
+  }
+  step();
+}
+
+// --- Mostrar slide actual (con cross-fade) ---
+function showIntroSlide(instant=false){
+  const slide = introSlides[introIndex];
+  if (!slide) return;
+  introNameEl.textContent = "Prólogo";
+  // Cross-fade (instant en la primera para evitar cualquier parpadeo)
+  introSetBackground(slide.img, instant);
+  typeWriterIntro(slide.text);
+}
+
+// --- Avanzar slide ---
+function advanceIntro(){
+  introIndex++;
+  if (introIndex >= introSlides.length){
+    introScene.style.display = "none";
+    if (dialog){
+      dlgIndex = 0;
+      dialog.style.display = "block";
+      showCurrentDialog();
+    }
+    applyOrientationLock();
+    return;
+  }
+  showIntroSlide(false);
+}
 
   const dialog = document.getElementById("dialogScene");
   const dialogNameEl = document.getElementById("dialogName");
