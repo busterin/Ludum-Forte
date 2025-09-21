@@ -9,23 +9,22 @@
   --rows: 16;
   --npRows: 4;
 
-  /* HUD dentro del mapa */
+  /* HUD */
   --hudRows: 1.6;
   --hudOffset: 2.2;
 
   /* Fondo compartido */
   --bg-url: url("assets/background.PNG");
 
-  /* Diálogo: caja y personajes */
-  --dlg-bottom: 2vh;   /* distancia de la caja al borde inferior */
-  --dlg-height: 24vh;  /* altura mínima de la caja */
+  /* Diálogo / Intro: caja y personajes */
+  --dlg-bottom: 0vh;       /* pegada abajo (a ras) */
+  --dlg-height: 24vh;      /* altura mínima de la caja */
 
-  /* Tamaño/cintura (mismo para ambos) */
-  --char-h-left: 66vh;      /* Hans (izq) */
-  --char-waist-left: 29vh;
-
-  --char-h-right: 66vh;     /* Risko (der) */
-  --char-waist-right: 29vh;
+  /* Tamaño/cintura (igual para ambos retratos) */
+  --char-h-left: 78vh;     /* Hans (izq) */
+  --char-waist-left: 35vh;
+  --char-h-right: 78vh;    /* Risko (der) */
+  --char-waist-right: 35vh;
 }
 
 /* ===========================
@@ -33,7 +32,6 @@
 =========================== */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
-
 body {
   font-family: system-ui, Arial, sans-serif;
   margin: 0;
@@ -59,22 +57,25 @@ body {
   display: flex; flex-direction: column; justify-content: center; align-items: center;
   z-index: 10000;
 }
-#portada .portada-img {
-  width: 100%; height: 100%;
-  object-fit: cover; object-position: center;
-  pointer-events: none;
-}
+#portada .portada-img { width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none; }
 #portada .btn-jugar {
-  position: absolute;
-  bottom: 6%;
-  padding: 14px 26px;
-  font-size: 20px; font-weight: bold;
+  position: absolute; bottom: 6%;
+  padding: 14px 26px; font-size: 20px; font-weight: bold;
   border-radius: 12px; border: 2px solid #145a32;
-  background: linear-gradient(180deg, #27ae60, #1e8449);
-  color: #fff; cursor: pointer;
+  background: linear-gradient(180deg, #27ae60, #1e8449); color: #fff; cursor: pointer;
   box-shadow: 0 4px 14px rgba(0,0,0,.4);
 }
 #portada .btn-jugar:hover { background: linear-gradient(180deg, #2ecc71, #229954); }
+
+/* ===========================
+   INTRO (PRÓLOGO)
+=========================== */
+#introScene{ position: fixed; inset: 0; z-index: 12000; display: block; }
+#introScene .intro-bg{
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  filter: brightness(.98) saturate(1.02);
+}
 
 /* ===========================
    ESCENA DE DIÁLOGO
@@ -87,68 +88,50 @@ body {
   filter: brightness(.95) saturate(1.05);
 }
 
-/* Retratos estáticos, GRANDES y ESQUINADOS (sin animaciones) */
+/* Retratos estáticos, GRANDES y ESQUINADOS */
 #dialogScene .dialog-char{
   position: absolute;
-  width: auto;
-  max-width: none;            /* no limitar por ancho */
-  object-fit: contain;
-  image-rendering: pixelated;
-  opacity: .35;               /* por defecto translúcidos */
-  transition: opacity .18s ease, filter .18s ease;
+  width: auto; max-width: none;
+  object-fit: contain; image-rendering: pixelated;
+  opacity: .35; transition: opacity .18s ease, filter .18s ease;
   pointer-events: none;
 }
-
-/* IZQUIERDA: Hans en la ESQUINA */
 #dialogScene img#charArcher{
-  left: 0 !important;         /* esquina izquierda */
-  right: auto !important;
+  left: 0 !important; right: auto !important;
   height: var(--char-h-left);
   bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
-  transform: translateX(-6%); /* libera centro */
+  transform: translateX(-10%);
 }
-
-/* DERECHA: Risko en la ESQUINA */
 #dialogScene img#charKnight{
-  right: 0 !important;        /* esquina derecha */
-  left: auto !important;
+  right: 0 !important; left: auto !important;
   height: var(--char-h-right);
   bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
-  transform: translateX(6%);
+  transform: translateX(10%);
 }
-
-/* Hablante destacado */
 #dialogScene .dialog-char.speaking{
-  opacity: 1 !important;
-  filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
+  opacity: 1 !important; filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
 
-/* Caja de diálogo (visual novel) */
-#dialogScene .dialog-box{
+/* Caja de diálogo / intro (pegada abajo, marco neón sutil) */
+#dialogScene .dialog-box,
+#introScene  .dialog-box{
   position: absolute; left: 2.5%; right: 2.5%;
-  bottom: var(--dlg-bottom);
+  bottom: 0; /* a ras de pantalla */
   min-height: var(--dlg-height);
-  background: rgba(5,10,14,.82);
-  border: 1px solid rgba(255,255,255,.20);
-  border-radius: 14px;
-  padding: 14px 16px 16px 16px;
-  box-shadow: 0 16px 32px rgba(0,0,0,.5);
+  background: rgba(5,10,14,.92);
+  border: 2px solid rgba(255,255,255,0.5);
+  border-top-left-radius: 12px; border-top-right-radius: 12px;
+  border-bottom-left-radius: 0;  border-bottom-right-radius: 0;
+  padding: 14px 16px calc(16px + env(safe-area-inset-bottom)) 16px;
+  box-shadow: 0 0 12px rgba(255,255,255,0.25), 0 -6px 24px rgba(0,0,0,.55);
   backdrop-filter: blur(6px);
   z-index: 1;
 }
-#dialogScene .dialog-box::before{
-  content:"";
-  position:absolute; left:-1px; right:-1px; top:-18px; height:18px;
-  background: linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,0));
-  border-top-left-radius: 14px; border-top-right-radius: 14px;
-  pointer-events:none;
-}
-.dialog-name{
-  font-weight: 900; margin: 2px 0 6px 0; color: #fff; letter-spacing: .2px; font-size: 15px;
-}
-.dialog-text{
-  font-size: 15px; line-height: 1.45; color: #e9eef7; min-height: 3.6em; margin-bottom: 12px; white-space: pre-wrap;
-}
+#dialogScene .dialog-box::before,
+#introScene  .dialog-box::before{ content: none !important; }
+
+.dialog-name{ font-weight: 900; margin: 2px 0 6px 0; color: #fff; letter-spacing: .2px; font-size: 15px; }
+.dialog-text{ font-size: 15px; line-height: 1.45; color: #e9eef7; min-height: 3.6em; margin-bottom: 12px; white-space: pre-wrap; }
 .dialog-cta{ display: flex; justify-content: flex-end; }
 .dialog-box .small{ padding: 8px 13px; font-size: 13px; border-radius: 10px; }
 
@@ -160,16 +143,16 @@ body {
    ESQUINADO AGRESIVO EN PANTALLAS PEQUEÑAS
 =========================== */
 @media (max-width: 600px){
-  #dialogScene img#charArcher{ left: -4vw; transform: translateX(-10%); }
-  #dialogScene img#charKnight{ right: -4vw; transform: translateX(10%); }
+  #dialogScene img#charArcher{ left: -6vw; transform: translateX(-16%); }
+  #dialogScene img#charKnight{ right: -6vw; transform: translateX(16%); }
 }
 @media (max-width: 480px){
-  #dialogScene img#charArcher{ left: -8vw; transform: translateX(-16%); }
-  #dialogScene img#charKnight{ right: -8vw; transform: translateX(16%); }
+  #dialogScene img#charArcher{ left: -10vw; transform: translateX(-22%); }
+  #dialogScene img#charKnight{ right: -10vw; transform: translateX(22%); }
 }
 @media (max-width: 380px){
-  #dialogScene img#charArcher{ left: -10vw; transform: translateX(-20%); }
-  #dialogScene img#charKnight{ right: -10vw; transform: translateX(20%); }
+  #dialogScene img#charArcher{ left: -12vw; transform: translateX(-26%); }
+  #dialogScene img#charKnight{ right: -12vw; transform: translateX(26%); }
 }
 
 /* ===========================
@@ -247,22 +230,19 @@ body {
 .hp .bar { position: relative; flex: 1; height: 10px; background: #243042; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; overflow: hidden; }
 .hp .bar > span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: width .25s ease; }
 .hp .value { font-size: 11px; min-width: 76px; text-align: right; color:#e6e9ef; }
-#acciones { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 
+/* Botones */
+#acciones { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 button { padding: 7px 10px; font-size: 13px; border-radius: 10px; border: 1px solid #c9d2e3; background: white; color: #111; cursor: pointer; }
 button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
 
-/* ===========================
-   FX
-=========================== */
+/* FX */
 @keyframes flash-yellow { 0% { background-color: rgba(255,230,0,.75);} 100% {background-color: transparent;} }
 @keyframes flash-red    { 0% { background-color: rgba(255,60,60,.75);}  100% {background-color: transparent;} }
 .celda.flash-player { animation: flash-yellow .28s ease-out; }
 .celda.flash-enemy  { animation: flash-red .28s ease-out; }
-
 @keyframes blink-hit { 0%,100%{opacity:1;} 50%{opacity:.12;} }
 .fichaMiniImg.blink-hit { animation: blink-hit .6s linear 2; }
-
 @keyframes dmg-pop { 0%{ transform:translate(-50%,-10px) scale(1); opacity:1;} 100%{ transform:translate(-50%,-42px) scale(1.05); opacity:0; } }
 .dmg-float {
   position: absolute; left: 50%; top: 8px; transform: translateX(-50%);
@@ -272,13 +252,10 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
 }
 .dmg-player { border-color: rgba(255,200,0,.6); }
 .dmg-enemy  { border-color: rgba(255,80,80,.6); }
-
 @keyframes death-pop { 0%{opacity:1; transform: scale(1);} 100%{opacity:0; transform: scale(1.15);} }
 .death-pop { animation: death-pop .35s ease-out forwards; }
 
-/* ===========================
-   BLOQUEO DE ORIENTACIÓN
-=========================== */
+/* BLOQUEO DE ORIENTACIÓN */
 #orientationBlocker{
   position: fixed; inset: 0; z-index: 20000;
   display: grid; place-items: center; background: rgba(0,0,0,.85); backdrop-filter: blur(2px);
@@ -289,9 +266,7 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   text-align: center; font-weight: 700; box-shadow: 0 12px 28px rgba(0,0,0,.45);
 }
 
-/* ===========================
-   RESPONSIVE PEQUEÑO (HUD)
-=========================== */
+/* HUD compacto */
 @media (max-width: 380px){
   .card { grid-template-columns: 46px 1fr; gap: 6px; }
   .card .portrait { width: 46px; height: 46px; }
@@ -300,9 +275,7 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   button { padding: 6px 9px; font-size: 12px; }
 }
 
-/* ===========================
-   RESCATE (marco de salida)
-=========================== */
+/* RESCATE */
 .salida{
   width: 70%;
   height: 70%;
@@ -315,34 +288,4 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   outline: 2px solid #f1c40f;
   outline-offset: -2px;
   border-radius: 6px;
-}
-/* Caja de diálogo sin franja superior y pegada abajo */
-#dialogScene .dialog-box{
-  bottom: 0; /* a ras del borde inferior */
-  min-height: var(--dlg-height);
-  left: 2.5%;
-  right: 2.5%;
-  background: rgba(5,10,14,.92); /* un pelín más opaca para que no se vea nada detrás */
-  border: 1px solid rgba(255,255,255,.20);
-  border-top-left-radius: 14px;
-  border-top-right-radius: 14px;
-  border-bottom-left-radius: 0;   /* pegada abajo */
-  border-bottom-right-radius: 0;  /* pegada abajo */
-  padding: 14px 16px calc(16px + env(safe-area-inset-bottom)) 16px; /* respeta notch */
-  box-shadow: 0 16px 32px rgba(0,0,0,.5);
-  backdrop-filter: blur(6px);
-  z-index: 1;
-}
-
-/* Elimina la franja superior (degradado) si existe */
-#dialogScene .dialog-box::before{
-  content: none !important;
-}
-/* Marco sencillo y claro para la caja de diálogo */
-#dialogScene .dialog-box {
-  border: 2px solid rgba(255,255,255,0.35); /* marco más visible */
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
 }
