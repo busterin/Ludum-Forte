@@ -21,11 +21,11 @@
   --dlg-height: 24vh;  /* altura mínima de la caja */
 
   /* Tamaño/cintura (mismo para ambos) */
-  --char-h-left: 78vh;      /* Hans (izq) */
-  --char-waist-left: 35vh;
+  --char-h-left: 66vh;      /* Hans (izq) */
+  --char-waist-left: 29vh;
 
-  --char-h-right: 78vh;     /* Risko (der) */
-  --char-waist-right: 35vh;
+  --char-h-right: 66vh;     /* Risko (der) */
+  --char-waist-right: 29vh;
 }
 
 /* ===========================
