@@ -1,6 +1,6 @@
 /* ============================================
-   LUDUM FORTE — INTRO + TUTORIAL + RESCATE
-   v=levels-1
+   LUDUM FORTE — INTRO + TUTORIAL + RESCATE + NIVELES POPUP
+   v=levels-2
 ============================================ */
 
 /* ===========================
@@ -174,6 +174,15 @@ body {
 .go-reason{ opacity:.9; margin: 0 0 12px 0; }
 button.danger{ background:#e74c3c; border-color:#e74c3c; color:#fff; }
 button.danger:hover{ background:#ff5e4f; }
+
+/* Popup de subida de nivel */
+.overlay.levelup { z-index: 11000; background: rgba(0,0,0,.6); }
+.levelup-box{
+  border-color: rgba(255,215,0,.65);
+  box-shadow: 0 0 24px rgba(255,215,0,.25), 0 12px 28px rgba(0,0,0,.55);
+}
+.levelup-box h2{ margin: 0 0 10px 0; }
+.levelup-box p { margin: 0 0 12px 0; }
 
 /* Turn banner */
 .turn-banner{
