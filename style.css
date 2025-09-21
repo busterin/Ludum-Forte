@@ -20,10 +20,10 @@
   --dlg-bottom: 0vh;       /* pegada abajo (a ras) */
   --dlg-height: 24vh;      /* altura mínima de la caja */
 
-  /* Tamaño/cintura (igual para ambos retratos) */
-  --char-h-left: 78vh;     /* Hans (izq) */
+  /* Tamaño/cintura (mismo tamaño para ambos) */
+  --char-h-left: 78vh;      /* Hans (izq) */
   --char-waist-left: 35vh;
-  --char-h-right: 78vh;    /* Risko (der) */
+  --char-h-right: 78vh;     /* Risko (der) */
   --char-waist-right: 35vh;
 }
 
@@ -88,7 +88,7 @@ body {
   filter: brightness(.95) saturate(1.05);
 }
 
-/* Retratos estáticos, GRANDES y ESQUINADOS */
+/* Retratos estáticos, esquinados y sin animaciones */
 #dialogScene .dialog-char{
   position: absolute;
   width: auto; max-width: none;
@@ -112,7 +112,7 @@ body {
   opacity: 1 !important; filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
 
-/* Caja de diálogo / intro (pegada abajo, marco neón sutil) */
+/* Caja de diálogo / intro (a ras de abajo, con marco sencillo) */
 #dialogScene .dialog-box,
 #introScene  .dialog-box{
   position: absolute; left: 2.5%; right: 2.5%;
@@ -139,9 +139,7 @@ body {
 .type-cursor::after{ content: "▌"; display: inline-block; margin-left: 2px; animation: cursorBlink .9s steps(1) infinite; }
 @keyframes cursorBlink { 50% { opacity: 0; } }
 
-/* ===========================
-   ESQUINADO AGRESIVO EN PANTALLAS PEQUEÑAS
-=========================== */
+/* Esquinado agresivo en pantallas pequeñas */
 @media (max-width: 600px){
   #dialogScene img#charArcher{ left: -6vw; transform: translateX(-16%); }
   #dialogScene img#charKnight{ right: -6vw; transform: translateX(16%); }
@@ -154,30 +152,6 @@ body {
   #dialogScene img#charArcher{ left: -12vw; transform: translateX(-26%); }
   #dialogScene img#charKnight{ right: -12vw; transform: translateX(26%); }
 }
-
-/* ===========================
-   TUTORIAL (no bloquear tablero)
-=========================== */
-#tutorialOverlay{
-  position: fixed; inset: 0; z-index: 12500;
-  pointer-events: none;            /* overlay no intercepta */
-}
-#tutorialOverlay .tutorial-backdrop{
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,0.12);
-  pointer-events: none;            /* fondo no intercepta */
-}
-/* Por defecto, la caja NO intercepta (pasos interactivos) */
-#tutorialOverlay .tutorial-box{
-  position: absolute; left: 2.5%; right: 2.5%;
-  bottom: 0;
-  pointer-events: none;            /* <- clave del fix */
-}
-/* Cuando haya pasos informativos, el JS añade .interactive para permitir pulsar "Continuar" */
-#tutorialOverlay .tutorial-box.interactive{
-  pointer-events: auto;
-}
-#tutorialOverlay .dialog-cta{ display: none; } /* se activará en pasos informativos */
 
 /* ===========================
    OVERLAYS
@@ -297,19 +271,4 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   .meta { font-size: 11px; }
   .hp .value { font-size: 10px; min-width: 64px; }
   button { padding: 6px 9px; font-size: 12px; }
-}
-
-/* RESCATE */
-.salida{
-  width: 70%;
-  height: 70%;
-  border: 2px dashed rgba(255,255,255,.8);
-  border-radius: 8px;
-  background: rgba(255,255,255,.08);
-  box-shadow: inset 0 0 12px rgba(255,255,255,.18);
-}
-.fichaMiniImg.villager{
-  outline: 2px solid #f1c40f;
-  outline-offset: -2px;
-  border-radius: 6px;
 }
