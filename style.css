@@ -1,6 +1,6 @@
 /* ============================================
    TACTIC HEROES — INTRO CROSSFADE + TUTORIAL + RESCATE
-   Fecha: 2025-09-21
+   v=rescate-2
 ============================================ */
 
 /* ===========================
@@ -21,22 +21,20 @@
   /* Fondo compartido */
   --bg-url: url("assets/background.PNG");
 
-  /* Diálogo / Intro: caja y personajes */
-  --dlg-bottom: 0vh;       /* pegada abajo (a ras) */
-  --dlg-height: 24vh;      /* altura mínima de la caja */
+  /* Caja de diálogo */
+  --dlg-bottom: 0vh;
+  --dlg-height: 24vh;
 
-  /* Tamaño/cintura (mismo tamaño para todos) */
-  --char-h-left: 78vh;      /* Hans (izq) */
+  /* Tamaños retratos */
+  --char-h-left: 78vh;   /* Hans */
   --char-waist-left: 35vh;
-  --char-h-right: 78vh;     /* Risko (der) */
+  --char-h-right: 78vh;  /* Risko */
   --char-waist-right: 35vh;
-  --char-h-center: 72vh;    /* Aldeanos (centro), un pelín más contenidos */
+  --char-h-center: 72vh; /* Aldeanos */
   --char-waist-center: 33vh;
 }
 
-/* ===========================
-   RESETEO BÁSICO
-=========================== */
+/* Reset */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
@@ -56,9 +54,7 @@ body {
   background-color: #000;
 }
 
-/* ===========================
-   PORTADA
-=========================== */
+/* Portada */
 #portada {
   position: fixed; inset: 0; background: #000;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -74,24 +70,16 @@ body {
 }
 #portada .btn-jugar:hover { background: linear-gradient(180deg, #2ecc71, #229954); }
 
-/* ===========================
-   INTRO (PRÓLOGO)
-=========================== */
-#introScene{
-  position: fixed; inset: 0; z-index: 12000; display: block;
-  background: #000; /* opaco */
-}
+/* INTRO (PRÓLOGO) */
+#introScene{ position: fixed; inset: 0; z-index: 12000; display: block; background: #000; }
 #introScene .intro-bg.layer{
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
-  opacity: 0;
-  transition: opacity .28s ease;
+  opacity: 0; transition: opacity .28s ease;
 }
 #introScene .intro-bg.layer.show{ opacity: 1; }
 
-/* ===========================
-   ESCENA DE DIÁLOGO
-=========================== */
+/* DIÁLOGOS */
 #dialogScene{ position: fixed; inset: 0; z-index: 12000; display: block; }
 #dialogScene .dialog-bg{
   position: absolute; inset: 0;
@@ -99,11 +87,8 @@ body {
   background-size: cover; background-position: center;
   filter: brightness(.95) saturate(1.05);
 }
-
-/* Retratos estáticos, sin animaciones, con resaltado de hablante */
 #dialogScene .dialog-char{
-  position: absolute;
-  width: auto; max-width: none;
+  position: absolute; width: auto; max-width: none;
   object-fit: contain; image-rendering: pixelated;
   opacity: .35; transition: opacity .18s ease, filter .18s ease;
   pointer-events: none;
@@ -124,34 +109,33 @@ body {
   left: 50%; transform: translate(-50%, 0);
   height: var(--char-h-center);
   bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-center));
-  display: none; /* se muestra solo en el diálogo post-nivel */
+  display: none;
 }
 #dialogScene .dialog-char.speaking{
   opacity: 1 !important; filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
 
-/* Caja de diálogo / intro (a ras de abajo, con marco sencillo) */
-#dialogScene .dialog-box,
-#introScene  .dialog-box{
-  position: absolute; left: 2.5%; right: 2.5%;
-  bottom: 0; min-height: var(--dlg-height);
+/* Caja de diálogo (a ras, con marco) */
+#dialogScene .dialog-box, #introScene .dialog-box{
+  position: absolute; left: 2.5%; right: 2.5%; bottom: 0;
+  min-height: var(--dlg-height);
   background: rgba(5,10,14,.92);
   border: 2px solid rgba(255,255,255,0.5);
   border-top-left-radius: 12px; border-top-right-radius: 12px;
-  border-bottom-left-radius: 0;  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0; border-bottom-right-radius: 0;
   padding: 14px 16px calc(16px + env(safe-area-inset-bottom)) 16px;
   box-shadow: 0 0 12px rgba(255,255,255,0.25), 0 -6px 24px rgba(0,0,0,.55);
   backdrop-filter: blur(6px);
   z-index: 1;
 }
-.dialog-name{ font-weight: 900; margin: 2px 0 6px 0; color: #fff; letter-spacing: .2px; font-size: 15px; }
+.dialog-name{ font-weight: 900; margin: 2px 0 6px 0; color:#fff; letter-spacing:.2px; font-size:15px; }
 .dialog-text{ font-size: 15px; line-height: 1.45; color: #e9eef7; min-height: 3.6em; margin-bottom: 12px; white-space: pre-wrap; }
 .dialog-cta{ display: flex; justify-content: flex-end; }
 .dialog-box .small{ padding: 8px 13px; font-size: 13px; border-radius: 10px; }
-.type-cursor::after{ content: "▌"; display: inline-block; margin-left: 2px; animation: cursorBlink .9s steps(1) infinite; }
+.type-cursor::after{ content:"▌"; display:inline-block; margin-left:2px; animation: cursorBlink .9s steps(1) infinite; }
 @keyframes cursorBlink { 50% { opacity: 0; } }
 
-/* Esquinado agresivo en pantallas pequeñas */
+/* Esquinado más agresivo en móviles */
 @media (max-width: 600px){
   #dialogScene img#charArcher{ left: -6vw; transform: translateX(-16%); }
   #dialogScene img#charKnight{ right: -6vw; transform: translateX(16%); }
@@ -165,41 +149,21 @@ body {
   #dialogScene img#charKnight{ right: -12vw; transform: translateX(26%); }
 }
 
-/* ===========================
-   OVERLAYS
-=========================== */
-.overlay {
-  position: fixed; inset: 0; z-index: 9999;
-  display: grid; place-items: center;
-  background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
-}
-.overlay::before{
-  content: ""; position: absolute; inset: 0; z-index: -1;
-  background-image: var(--bg-url);
-  background-size: cover; background-position: center; background-repeat: no-repeat;
-  transform: scale(1.02); filter: brightness(0.9);
-}
-.overlay-box{
-  background: #101418; border: 1px solid rgba(255,255,255,.15);
-  border-radius: 14px; padding: 22px 20px; width: min(90vw, 420px);
-  text-align: center; box-shadow: 0 12px 28px rgba(0,0,0,.45);
-}
-.overlay-box h1{ margin: 0 0 14px 0; }
+/* Overlays */
+.overlay { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); }
+.overlay::before{ content:""; position:absolute; inset:0; z-index:-1; background-image:var(--bg-url); background-size:cover; background-position:center; transform:scale(1.02); filter:brightness(.9); }
+.overlay-box{ background:#101418; border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:22px 20px; width:min(90vw,420px); text-align:center; box-shadow:0 12px 28px rgba(0,0,0,.45); }
+.overlay-box h1{ margin:0 0 14px 0; }
 
-/* ===========================
-   BANNER DE TURNO
-=========================== */
+/* Turn banner */
 .turn-banner{
-  position: fixed; left: 50%; top: max(10px, env(safe-area-inset-top));
-  transform: translateX(-50%); z-index: 8000;
+  position: fixed; left: 50%; top: max(10px, env(safe-area-inset-top)); transform: translateX(-50%); z-index: 8000;
   background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.25); color: #fff;
   padding: 8px 14px; border-radius: 12px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase;
   backdrop-filter: blur(3px); box-shadow: 0 6px 20px rgba(0,0,0,.35);
 }
 
-/* ===========================
-   TABLERO 9x16 + HUD
-=========================== */
+/* Tablero */
 #mapa {
   flex: 1 1 auto;
   display: grid;
@@ -215,41 +179,27 @@ body {
   position: relative;
 }
 #hud{
-  position: absolute; left: 0; right: 0;
+  position: absolute; left:0; right:0;
   top: calc(var(--cell) * (var(--rows) - var(--hudRows) - var(--hudOffset)));
   height: calc(var(--cell) * var(--hudRows));
   padding: 6px 8px; display: flex; flex-direction: column; gap: 6px;
   background: transparent; pointer-events: auto;
 }
 
-/* Celdas / selección */
+/* Celdas */
 .celda { width: var(--cell); height: var(--cell); display: grid; place-items: center; cursor: pointer; position: relative; z-index: 0; }
 .celda.movible { outline: 3px solid rgba(48,140,255,0.55); outline-offset: -1px; }
 .celda.seleccionada{ box-shadow: inset 0 0 0 3px #1b76ff; }
 
-/* Destino del tutorial (amarillo) */
-.celda.tut-target{
-  outline: 3px solid rgba(255, 215, 0, 0.9);
-  outline-offset: -1px;
-  box-shadow: inset 0 0 0 3px rgba(255, 215, 0, 0.5);
-  position: relative;
-}
-.celda.tut-target::after{
-  content:""; position:absolute; inset:2px;
-  border:2px dashed rgba(255,215,0,0.9); border-radius:6px;
-}
-
-/* Objetivo de rescate (verde) */
-.celda.goal{
-  outline: 3px solid rgba(46, 204, 113, 0.95);
-  outline-offset: -1px;
-  box-shadow: inset 0 0 0 3px rgba(46, 204, 113, 0.55);
-}
+/* Marcadores guía */
+.celda.tut-target{ outline: 3px solid rgba(255,215,0,0.9); outline-offset:-1px; box-shadow: inset 0 0 0 3px rgba(255,215,0,0.5); position: relative; }
+.celda.tut-target::after{ content:""; position:absolute; inset:2px; border:2px dashed rgba(255,215,0,0.9); border-radius:6px; }
+.celda.goal{ outline: 3px solid rgba(46,204,113,0.95); outline-offset: -1px; box-shadow: inset 0 0 0 3px rgba(46,204,113,0.55); }
 
 /* Sprites */
 .fichaMiniImg { width: 90%; height: 90%; object-fit: contain; image-rendering: pixelated; position: relative; z-index: 1; pointer-events: none; }
 
-/* HUD */
+/* HUD tarjeta */
 #ficha { display: none; width: 100%; text-align: left; background: rgba(16,20,24,.88); color: #ddd; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 6px 8px; }
 .card { display: grid; grid-template-columns: 52px 1fr; gap: 8px; align-items: center; }
 .card .portrait { width: 52px; height: 52px; border-radius: 8px; background-size: cover; background-position: center; background-repeat: no-repeat; border: 1px solid rgba(255,255,255,.12); }
@@ -281,27 +231,15 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
 @keyframes blink-hit { 0%,100%{opacity:1;} 50%{opacity:.12;} }
 .fichaMiniImg.blink-hit { animation: blink-hit .6s linear 2; }
 @keyframes dmg-pop { 0%{ transform:translate(-50%,-10px) scale(1); opacity:1;} 100%{ transform:translate(-50%,-42px) scale(1.05); opacity:0; } }
-.dmg-float {
-  position: absolute; left: 50%; top: 8px; transform: translateX(-50%);
-  font-weight: 900; font-size: 15px; padding: 2px 6px; border-radius: 6px; color:#111; background:#fff;
-  border:1px solid rgba(0,0,0,.1); box-shadow: 0 2px 6px rgba(0,0,0,.15);
-  animation: dmg-pop .6s ease-out forwards;
-}
+.dmg-float { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); font-weight: 900; font-size: 15px; padding: 2px 6px; border-radius: 6px; color:#111; background:#fff; border:1px solid rgba(0,0,0,.1); box-shadow: 0 2px 6px rgba(0,0,0,.15); animation: dmg-pop .6s ease-out forwards; }
 .dmg-player { border-color: rgba(255,200,0,.6); }
 .dmg-enemy  { border-color: rgba(255,80,80,.6); }
 @keyframes death-pop { 0%{opacity:1; transform: scale(1);} 100%{opacity:0; transform: scale(1.15);} }
 .death-pop { animation: death-pop .35s ease-out forwards; }
 
-/* BLOQUEO DE ORIENTACIÓN */
-#orientationBlocker{
-  position: fixed; inset: 0; z-index: 20000;
-  display: grid; place-items: center; background: rgba(0,0,0,.85); backdrop-filter: blur(2px);
-}
-#orientationBlocker .obx{
-  background: #101418; color: #fff; border: 1px solid rgba(255,255,255,.15);
-  border-radius: 14px; padding: 18px 16px; width: min(86vw, 420px);
-  text-align: center; font-weight: 700; box-shadow: 0 12px 28px rgba(0,0,0,.45);
-}
+/* Orientación */
+#orientationBlocker{ position: fixed; inset: 0; z-index: 20000; display: grid; place-items: center; background: rgba(0,0,0,.85); backdrop-filter: blur(2px); }
+#orientationBlocker .obx{ background: #101418; color:#fff; border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:18px 16px; width:min(86vw, 420px); text-align:center; font-weight:700; box-shadow: 0 12px 28px rgba(0,0,0,.45); }
 
 /* HUD compacto */
 @media (max-width: 380px){
