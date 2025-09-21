@@ -16,17 +16,15 @@
   /* Fondo compartido */
   --bg-url: url("assets/background.PNG");
 
-  /* Diálogo: caja y personajes (ajustables) */
+  /* Diálogo: caja y personajes */
   --dlg-bottom: 2vh;   /* distancia de la caja al borde inferior */
   --dlg-height: 24vh;  /* altura mínima de la caja */
 
-  /* Tamaño/cintura de cada retrato */
-  /* IZQ (Arquero) */
-  --char-h-left: 78vh;
+  /* Tamaño/cintura (mismo para ambos) */
+  --char-h-left: 78vh;      /* Hans (izq) */
   --char-waist-left: 35vh;
 
-  /* DER (Guerrera) — un poco mayor para equilibrar */
-  --char-h-right: 78vh;
+  --char-h-right: 78vh;     /* Risko (der) */
   --char-waist-right: 35vh;
 }
 
@@ -68,7 +66,7 @@ body {
 }
 #portada .btn-jugar {
   position: absolute;
-  bottom: 6%; /* ↓ como pediste */
+  bottom: 6%;
   padding: 14px 26px;
   font-size: 20px; font-weight: bold;
   border-radius: 12px; border: 2px solid #145a32;
@@ -89,12 +87,11 @@ body {
   filter: brightness(.95) saturate(1.05);
 }
 
-/* -------- Retratos estáticos, GRANDES y ESQUINADOS --------
-   (sin animaciones; sin max-width que los encoja) */
+/* Retratos estáticos, GRANDES y ESQUINADOS (sin animaciones) */
 #dialogScene .dialog-char{
   position: absolute;
   width: auto;
-  max-width: none;            /* crítico: no limitar por ancho */
+  max-width: none;            /* no limitar por ancho */
   object-fit: contain;
   image-rendering: pixelated;
   opacity: .35;               /* por defecto translúcidos */
@@ -102,31 +99,31 @@ body {
   pointer-events: none;
 }
 
-/* IZQUIERDA: Arquero en la ESQUINA */
+/* IZQUIERDA: Hans en la ESQUINA */
 #dialogScene img#charArcher{
   left: 0 !important;         /* esquina izquierda */
   right: auto !important;
   height: var(--char-h-left);
   bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-left));
-  transform: translateX(-6%); /* empuja un poco hacia fuera para liberar centro */
+  transform: translateX(-6%); /* libera centro */
 }
 
-/* DERECHA: Guerrera en la ESQUINA (algo mayor) */
+/* DERECHA: Risko en la ESQUINA */
 #dialogScene img#charKnight{
   right: 0 !important;        /* esquina derecha */
   left: auto !important;
   height: var(--char-h-right);
   bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-right));
-  transform: translateX(6%);  /* empuja un poco hacia fuera para liberar centro */
+  transform: translateX(6%);
 }
 
-/* El hablante se resalta */
+/* Hablante destacado */
 #dialogScene .dialog-char.speaking{
   opacity: 1 !important;
   filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
 }
 
-/* -------- Caja de diálogo (visual novel) -------- */
+/* Caja de diálogo (visual novel) */
 #dialogScene .dialog-box{
   position: absolute; left: 2.5%; right: 2.5%;
   bottom: var(--dlg-bottom);
@@ -137,7 +134,7 @@ body {
   padding: 14px 16px 16px 16px;
   box-shadow: 0 16px 32px rgba(0,0,0,.5);
   backdrop-filter: blur(6px);
-  z-index: 1; /* garantiza que la caja queda por encima de los retratos */
+  z-index: 1;
 }
 #dialogScene .dialog-box::before{
   content:"";
@@ -158,6 +155,22 @@ body {
 /* Cursor tecleando */
 .type-cursor::after{ content: "▌"; display: inline-block; margin-left: 2px; animation: cursorBlink .9s steps(1) infinite; }
 @keyframes cursorBlink { 50% { opacity: 0; } }
+
+/* ===========================
+   ESQUINADO AGRESIVO EN PANTALLAS PEQUEÑAS
+=========================== */
+@media (max-width: 600px){
+  #dialogScene img#charArcher{ left: -4vw; transform: translateX(-10%); }
+  #dialogScene img#charKnight{ right: -4vw; transform: translateX(10%); }
+}
+@media (max-width: 480px){
+  #dialogScene img#charArcher{ left: -8vw; transform: translateX(-16%); }
+  #dialogScene img#charKnight{ right: -8vw; transform: translateX(16%); }
+}
+@media (max-width: 380px){
+  #dialogScene img#charArcher{ left: -10vw; transform: translateX(-20%); }
+  #dialogScene img#charKnight{ right: -10vw; transform: translateX(20%); }
+}
 
 /* ===========================
    OVERLAYS
@@ -277,7 +290,7 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
 }
 
 /* ===========================
-   RESPONSIVE PEQUEÑO
+   RESPONSIVE PEQUEÑO (HUD)
 =========================== */
 @media (max-width: 380px){
   .card { grid-template-columns: 46px 1fr; gap: 6px; }
@@ -302,45 +315,4 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   outline: 2px solid #f1c40f;
   outline-offset: -2px;
   border-radius: 6px;
-}
-
-/* =======================================================
-   ESQUINADO AGRESIVO EN DISPOSITIVOS PEQUEÑOS
-   (empuja los retratos fuera de pantalla para liberar centro)
-======================================================= */
-
-/* ≤ 600px de ancho: empuje moderado */
-@media (max-width: 600px){
-  #dialogScene img#charArcher{
-    left: -4vw;                 /* saca un poco por la izquierda */
-    transform: translateX(-8%);
-  }
-  #dialogScene img#charKnight{
-    right: -4vw;                /* saca un poco por la derecha */
-    transform: translateX(8%);
-  }
-}
-
-/* ≤ 480px de ancho: empuje fuerte */
-@media (max-width: 480px){
-  #dialogScene img#charArcher{
-    left: -8vw;                 /* más fuera aún */
-    transform: translateX(-14%);
-  }
-  #dialogScene img#charKnight{
-    right: -8vw;
-    transform: translateX(14%);
-  }
-}
-
-/* ≤ 380px de ancho: empuje extremo (anti-solape total) */
-@media (max-width: 380px){
-  #dialogScene img#charArcher{
-    left: -10vw;                /* casi pegado al borde físico del sprite */
-    transform: translateX(-18%);
-  }
-  #dialogScene img#charKnight{
-    right: -10vw;
-    transform: translateX(18%);
-  }
 }
