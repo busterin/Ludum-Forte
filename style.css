@@ -1,6 +1,6 @@
 /* ============================================
    TACTIC HEROES — INTRO + TUTORIAL + RESCATE
-   v=rescate-3
+   v=rescate-6
 ============================================ */
 
 /* ===========================
@@ -90,12 +90,17 @@ body {
   background-size: cover; background-position: center;
   filter: brightness(.95) saturate(1.05);
 }
+
+/* Capas y opacidades */
 #dialogScene .dialog-char{
   position: absolute; width: auto; max-width: none;
   object-fit: contain; image-rendering: pixelated;
-  opacity: .35; transition: opacity .18s ease, filter .18s ease;
-  pointer-events: none;
+  opacity: .35; transition: opacity .18s ease, filter .18s ease, z-index .18s ease, display .0s;
+  pointer-events: none; z-index: 1;  /* base: fondo */
 }
+#dialogScene img#charArcher{ z-index: 2; }
+#dialogScene img#charKnight{ z-index: 2; }
+
 #dialogScene img#charArcher{
   left: 0 !important; right: auto !important;
   height: var(--char-h-left);
@@ -112,10 +117,13 @@ body {
   left: 50%; transform: translate(-50%, 0);
   height: var(--char-h-center);
   bottom: calc(var(--dlg-bottom) + var(--dlg-height) - var(--char-waist-center));
-  display: none;
+  display: none; /* solo aparece en diálogo post-win cuando hablan Aldeanos */
 }
+
 #dialogScene .dialog-char.speaking{
-  opacity: 1 !important; filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 14px rgba(255,255,255,.15));
+  z-index: 3; /* el hablante arriba */
 }
 
 /* Caja de diálogo (a ras, con marco) */
@@ -129,7 +137,7 @@ body {
   padding: 14px 16px calc(16px + env(safe-area-inset-bottom)) 16px;
   box-shadow: 0 0 12px rgba(255,255,255,0.25), 0 -6px 24px rgba(0,0,0,.55);
   backdrop-filter: blur(6px);
-  z-index: 1;
+  z-index: 4; /* por encima de retratos */
 }
 .dialog-name{ font-weight: 900; margin: 2px 0 6px 0; color:#fff; letter-spacing:.2px; font-size:15px; }
 .dialog-text{ font-size: 15px; line-height: 1.45; color: #e9eef7; min-height: 3.6em; margin-bottom: 12px; white-space: pre-wrap; }
