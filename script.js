@@ -461,11 +461,13 @@
   }
 
   function comprobarCambioATurnoEnemigo(){
-    if (players.every(p => !p.vivo || p.acted || p.mp===0)) {
-      setTurno("enemigo"); setTimeout(turnoIAEnemigos, 140);
-    }
+  // ✅ Solo pasamos a turno enemigo cuando TODAS las unidades ya han ACTUADO,
+  // no por quedarse sin MP.
+  if (players.every(p => !p.vivo || p.acted)) {
+    setTurno("enemigo");
+    setTimeout(turnoIAEnemigos, 140);
   }
-
+}
   // ---------- IA Enemiga ----------
   function turnoIAEnemigos(){
     if (turno !== "enemigo") return;
