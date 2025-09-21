@@ -371,10 +371,18 @@
           }
         }
 
-        if (seleccionado.mp>0){ calcularCeldasMovibles(seleccionado); }
-        else { celdasMovibles.clear(); distSel=null; seleccionado.acted=true; }
-        dibujarMapa(); botonesAccionesPara(seleccionado);
-        comprobarCambioATurnoEnemigo();
+        if (seleccionado.mp>0){
+  calcularCeldasMovibles(seleccionado);
+} else {
+  // ✅ Sin MP pero TODAVÍA NO hemos actuado: dejamos atacar o pasar turno.
+  celdasMovibles.clear();
+  distSel = null;
+  // NO ponemos acted=true aquí
+}
+dibujarMapa();
+botonesAccionesPara(seleccionado);
+// ✅ No cambiará de turno hasta que todas las unidades hayan ACTUADO de verdad.
+comprobarCambioATurnoEnemigo();
       } else {
         botonesAccionesPara(seleccionado);
       }
