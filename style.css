@@ -316,3 +316,25 @@ button.primary { background: #1b76ff; color: white; border-color: #1b76ff; }
   outline-offset: -2px;
   border-radius: 6px;
 }
+/* Caja de diálogo sin franja superior y pegada abajo */
+#dialogScene .dialog-box{
+  bottom: 0; /* a ras del borde inferior */
+  min-height: var(--dlg-height);
+  left: 2.5%;
+  right: 2.5%;
+  background: rgba(5,10,14,.92); /* un pelín más opaca para que no se vea nada detrás */
+  border: 1px solid rgba(255,255,255,.20);
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  border-bottom-left-radius: 0;   /* pegada abajo */
+  border-bottom-right-radius: 0;  /* pegada abajo */
+  padding: 14px 16px calc(16px + env(safe-area-inset-bottom)) 16px; /* respeta notch */
+  box-shadow: 0 16px 32px rgba(0,0,0,.5);
+  backdrop-filter: blur(6px);
+  z-index: 1;
+}
+
+/* Elimina la franja superior (degradado) si existe */
+#dialogScene .dialog-box::before{
+  content: none !important;
+}
