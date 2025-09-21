@@ -5,8 +5,7 @@
   <title>TACTIC HEROES</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="manifest" href="manifest.webmanifest">
-  <!-- Sube la query si cambias estilos para forzar recarga -->
-  <link rel="stylesheet" href="style.css?v=vn-esquinas-fix-1">
+  <link rel="stylesheet" href="style.css?v=vn-esquinas-final">
 </head>
 <body>
   <!-- Bloqueo por orientación horizontal -->
@@ -26,18 +25,21 @@
   <div id="dialogScene" style="display:none">
     <div class="dialog-bg"></div>
 
-    <!-- Personajes (estáticos) -->
-<img class="dialog-char left"  id="charArcher" src="assets/ArqueroDialogo.PNG"  alt="Hans">
-<img class="dialog-char right" id="charKnight" src="assets/GuerreraDialogo.PNG" alt="Risko">
+    <!-- Personajes estáticos y esquinados -->
+    <!-- IZQUIERDA: Hans -->
+    <img class="dialog-char left"  id="charArcher" src="assets/ArqueroDialogo.PNG"  alt="Hans">
+    <!-- DERECHA: Risko -->
+    <img class="dialog-char right" id="charKnight" src="assets/GuerreraDialogo.PNG" alt="Risko">
 
-<!-- Caja de diálogo -->
-<div class="dialog-box">
-  <div class="dialog-name" id="dialogName">Risko</div>
-  <div class="dialog-text" id="dialogText"></div>
-  <div class="dialog-cta">
-    <button id="btnDialogNext" class="primary small">Continuar</button>
+    <!-- Caja de diálogo -->
+    <div class="dialog-box">
+      <div class="dialog-name" id="dialogName">Risko</div>
+      <div class="dialog-text" id="dialogText"></div>
+      <div class="dialog-cta">
+        <button id="btnDialogNext" class="primary small">Continuar</button>
+      </div>
+    </div>
   </div>
-</div>
 
   <!-- Overlay NIVEL COMPLETADO -->
   <div id="overlayWin" class="overlay" style="display:none">
@@ -67,7 +69,6 @@
     </div>
   </div>
 
-  <!-- Usa tu script.js actual -->
-  <script src="script.js?v=vn-esquinas-fix-1"></script>
+  <script src="script.js?v=vn-esquinas-final"></script>
 </body>
 </html>
