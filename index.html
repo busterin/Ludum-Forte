@@ -5,7 +5,7 @@
   <title>TACTIC HEROES</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=intro-crossfade-1">
+  <link rel="stylesheet" href="style.css?v=rescate-1">
 </head>
 <body>
   <!-- Bloqueo por orientación horizontal -->
@@ -21,12 +21,10 @@
     <button id="btnJugar" class="btn-jugar">JUGAR</button>
   </div>
 
-  <!-- PRÓLOGO / INTRO (4 imágenes + caja de texto) -->
+  <!-- PRÓLOGO / INTRO (4 imágenes + caja de texto, cross-fade A/B) -->
   <div id="introScene" style="display:none">
-    <!-- Doble capa para cross-fade -->
     <div class="intro-bg layer" id="introBgA"></div>
     <div class="intro-bg layer" id="introBgB"></div>
-
     <div class="dialog-box">
       <div class="dialog-name" id="introName">Prólogo</div>
       <div class="dialog-text" id="introText"></div>
@@ -36,14 +34,16 @@
     </div>
   </div>
 
-  <!-- Escena de diálogo (Hans & Risko) -->
+  <!-- Escena de diálogo (Hans & Risko & Aldeanos en post-nivel también) -->
   <div id="dialogScene" style="display:none">
     <div class="dialog-bg"></div>
 
     <!-- IZQUIERDA: Hans -->
-    <img class="dialog-char left"  id="charArcher" src="assets/ArqueroDialogo.PNG"  alt="Hans">
+    <img class="dialog-char left"  id="charArcher"   src="assets/ArqueroDialogo.PNG"  alt="Hans">
     <!-- DERECHA: Risko -->
-    <img class="dialog-char right" id="charKnight" src="assets/GuerreraDialogo.PNG" alt="Risko">
+    <img class="dialog-char right" id="charKnight"   src="assets/GuerreraDialogo.PNG" alt="Risko">
+    <!-- CENTRO: Aldeanos (solo se usa en el diálogo post-nivel) -->
+    <img class="dialog-char center" id="charVillagers" src="assets/Aldeanos.PNG" alt="Aldeanos" style="display:none;">
 
     <!-- Caja de diálogo -->
     <div class="dialog-box">
@@ -55,10 +55,10 @@
     </div>
   </div>
 
-  <!-- Overlay NIVEL COMPLETADO -->
+  <!-- Overlay NIVEL COMPLETADO (se usa para el rescate también) -->
   <div id="overlayWin" class="overlay" style="display:none">
     <div class="overlay-box">
-      <h1>NIVEL COMPLETADO</h1>
+      <h1 id="winTitle">NIVEL COMPLETADO</h1>
       <button id="btnContinuar" class="primary">Continuar</button>
     </div>
   </div>
@@ -77,6 +77,6 @@
   <!-- Tutorial: barra inferior (no bloquea acciones) -->
   <div id="tutorialBar" style="display:none"></div>
 
-  <script src="script.js?v=intro-crossfade-1"></script>
+  <script src="script.js?v=rescate-1"></script>
 </body>
 </html>
