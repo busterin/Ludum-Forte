@@ -5,7 +5,7 @@
   <title>Ludum Forte</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=levels-2">
+  <link rel="stylesheet" href="style.css?v=levels-3">
 </head>
 <body>
   <!-- Bloqueo por orientación horizontal -->
@@ -72,9 +72,10 @@
     </div>
   </div>
 
-  <!-- Popup de subida de nivel -->
+  <!-- Popup de subida de nivel (con retrato) -->
   <div id="levelUpOverlay" class="overlay levelup" style="display:none">
     <div class="overlay-box levelup-box">
+      <img id="levelUpPortrait" class="levelup-portrait" src="" alt="Retrato subida nivel">
       <h2 id="levelUpTitle">¡Subida de nivel!</h2>
       <p id="levelUpMsg"></p>
       <button id="btnLevelUpOK" class="primary">Aceptar</button>
@@ -95,6 +96,6 @@
   <!-- Tutorial: barra inferior (no bloquea acciones) -->
   <div id="tutorialBar" style="display:none"></div>
 
-  <script src="script.js?v=levels-2"></script>
+  <script src="script.js?v=levels-3"></script>
 </body>
 </html>
