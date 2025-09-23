@@ -1,6 +1,6 @@
 /* ============================================
-   LUDUM FORTE — INTRO + TUTORIAL + RESCATE + GAME OVER + NIVELES + CURACIÓN ENTRE COMBATES
-   v=levels-2
+   LUDUM FORTE — INTRO + TUTORIAL + RESCATE + GAME OVER + NIVELES + CURACIÓN + FX DAÑO + RETRATOS LVL UP
+   v=levels-3
 ============================================ */
 (function(){
   // --- Dimensiones del tablero 9:16 ---
@@ -22,10 +22,7 @@
   let distSel = null;
 
   // Persistencia de personajes dentro de la sesión
-  const roster = {
-    K: null, // Risko
-    A: null  // Hans
-  };
+  const roster = { K: null, A: null }; // Risko, Hans
 
   // Tutorial
   let tutorialActive = false;
@@ -61,6 +58,7 @@
   const btnGameOverHome = document.getElementById("btnGameOverHome");
   const levelUpOverlay = document.getElementById("levelUpOverlay");
   const levelUpMsg = document.getElementById("levelUpMsg");
+  const levelUpPortrait = document.getElementById("levelUpPortrait");
   const btnLevelUpOK = document.getElementById("btnLevelUpOK");
   const turnBanner = document.getElementById("turnBanner");
 
@@ -162,11 +160,21 @@
   // ---------- NIVELES ----------
   function showLevelUpPopup(u, bonusText){
     if (!levelUpOverlay) return;
-    levelUpOverlay.style.display = "grid";
+    // retrato según quién
+    if (u.id === 'K') {
+      levelUpPortrait.src = "assets/GuerreraDialogo.PNG";
+      levelUpPortrait.alt = "Risko";
+    } else if (u.id === 'A') {
+      levelUpPortrait.src = "assets/ArqueroDialogo.PNG";
+      levelUpPortrait.alt = "Hans";
+    } else {
+      levelUpPortrait.src = "";
+      levelUpPortrait.alt = "Subida de nivel";
+    }
     levelUpMsg.textContent = `${u.nombre} sube a nivel ${u.nivel}. ${bonusText}`;
+    levelUpOverlay.style.display = "grid";
     const close = ()=>{ levelUpOverlay.style.display = "none"; };
     btnLevelUpOK.onclick = close;
-    // cierre auto por si acaso
     setTimeout(()=>{ if(levelUpOverlay.style.display!=="none") close(); }, 2500);
   }
 
@@ -183,7 +191,6 @@
       let bonus = "";
       if (u.nivel % 2 === 0){
         u.maxHp += 10;
-        // subimos también vida actual, pero como además se cura entre combates, aquí también se nota
         u.hp = Math.min(u.maxHp, u.hp + 10);
         bonus = "+10 HP";
       } else {
@@ -206,9 +213,7 @@
 
   // ---------- Spawns estándar ----------
   function spawnFase(){
-    // nueva oleada → curamos a todos
     healAndRefreshAll();
-
     enemies = [];
     const count = (fase === 1) ? 3 : (fase === 2) ? 4 : 0;
     if (count === 0) return;
@@ -237,11 +242,9 @@
     tutorialActive = true;
     tutorialStep = 0;
 
-    // crear si no existen en el roster (primera vez)
     roster.K = roster.K || makeKnight();
     roster.A = roster.A || makeArcher();
 
-    // jugadores de la escena = clones con misma progresión
     players = [
       { ...roster.K, fila: 10, col: 2, mp: PLAYER_MAX_MP, acted: false },
       { ...roster.A, fila: 10, col: 4, mp: PLAYER_MAX_MP, acted: false },
@@ -276,11 +279,9 @@
   function startRescueScenario(){
     rescueMode = true;
 
-    // Si hay progreso previo, reutilizamos roster; si no, lo creamos.
     roster.K = roster.K || makeKnight();
     roster.A = roster.A || makeArcher();
 
-    // Volcamos stats actuales a la escena y reposicionamos
     const risko = { ...roster.K, fila: 10, col: 1, acted: false, mp: PLAYER_MAX_MP };
     const hans  = { ...roster.A, fila: 10, col: 3, acted: false, mp: PLAYER_MAX_MP };
     players = [risko, hans];
@@ -565,6 +566,7 @@
     if (sprite){ sprite.classList.add('death-pop'); setTimeout(()=>{ if(sprite.parentNode) sprite.parentNode.removeChild(sprite); }, 360); }
   }
   function aplicarDanyo(obj,cant,fuente){
+    // Aplica FX tanto para enemigos como para jugadores
     obj.hp=Math.max(0,obj.hp-cant);
     efectoAtaque(obj,cant,fuente);
     mapa.classList.add("shake");
@@ -592,10 +594,8 @@
 
     setTimeout(()=>{
       if(!objetivo.vivo){
-        // subir nivel si procede
         awardKillAndMaybeLevelUp(u);
 
-        // Si el atacante es Risko/Hans, reflejar progreso en roster
         if (u.id === 'K') roster.K = { ...u };
         if (u.id === 'A') roster.A = { ...u };
 
@@ -610,12 +610,10 @@
           }
         }
 
-        // Fin de oleadas del combate base → postWin dialog → rescate
         if (!tutorialActive && !rescueMode && enemies.every(e=>!e.vivo)) {
           if (fase === 1){ fase = 2; spawnFase(); dibujarMapa(); }
           else if (fase === 2 && !postWinDialogShown){
             postWinDialogShown = true;
-            // Antes de pasar al diálogo post-win, curamos y guardamos progreso
             healAndRefreshAll();
             roster.K = players.find(p=>p.id==='K') || roster.K;
             roster.A = players.find(p=>p.id==='A') || roster.A;
@@ -672,14 +670,13 @@
         if(!moved) break;
       }
 
-      // Aldeanos capturados causan Game Over
       if (rescueMode && villagersUnit?.vivo && en.fila === villagersUnit.fila && en.col === villagersUnit.col){
         checkRescueWinLose();
         return;
       }
 
       if (manhattan(en, objetivo) === 1 && isAlivePlayerByRef(objetivo)) {
-        aplicarDanyo(objetivo, ENEMY_BASE_DAMAGE, 'enemy');
+        aplicarDanyo(objetivo, ENEMY_BASE_DAMAGE, 'enemy'); // mismo FX al dañar jugadores
         renderFicha(objetivo);
       }
     }
